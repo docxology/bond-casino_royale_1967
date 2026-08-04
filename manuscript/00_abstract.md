@@ -1,11 +1,33 @@
-# Abstract {#sec:abstract}
+# Abstract
 
-This paper presents a convergence study of **fixed-step gradient descent** on a convex quadratic, framed as the computational exemplar of the [Research Project Template](https://github.com/docxology/template). The implementation lives in `projects/working/bond/casino_royale_1967/src/optimizer.py`; experiments and figures are orchestrated by `projects/working/bond/casino_royale_1967/scripts/optimization_analysis.py` and hydrated into the manuscript through `scripts/z_generate_manuscript_variables.py`, so tables and prose track `output/data/optimization_results.csv` after every pipeline run.
+*Casino Royale* (1967) is the spy farce in which five different operatives
+answer to the same codename, James Bond. This project — codename **FIVE 00s** —
+builds deterministic mission software around that premise. It implements and
+tests three concepts drawn from the film's organizational failure:
 
-We evaluate {{CONFIG_NUM_STEP_SIZES}} step sizes from $\alpha = {{CONFIG_MIN_STEP_SIZE}}$ to $\alpha = {{CONFIG_MAX_STEP_SIZE}}$, spanning conservative, near-optimal, aggressive, and divergent regimes for a unit Hessian model. The build chain exercises template infrastructure end-to-end: scientific helpers (`infrastructure.scientific.stability`, `infrastructure.scientific.benchmarking`), validation, rendering (`infrastructure/rendering/pdf_renderer.py`), and reporting. Accessibility-oriented plotting defaults (colourblind-safe palette, 300 dpi exports) are centralized in `src/figures/` and `src/analysis/`.
+1. **Coordination-farce model** (`coordination_farce.py`): a roster of
+   {{CONFIG_NUM_AGENTS}} agents who all share the codename *James Bond*,
+   assigned across {{CONFIG_NUM_TASKS}} tasks from the film's plot. The model
+   detects **overlap** (multiple agents on one task) and **conflict**
+   (agents on mutually exclusive task pairs), reports clearance violations,
+   and computes a weighted coordination loss. The canonical assignment set of
+   {{RESULT_ASSIGNMENTS}} orders yields
+   {{RESULT_OVERLAP_COUNT}} overlaps and {{RESULT_CONFLICT_COUNT}} conflicts
+   for a loss of **{{RESULT_COORDINATION_LOSS}}**.
+2. **Dispatch-chaos simulation** (`dispatch_chaos.py`): a tick-based
+   dispatch centre issues {{RESULT_ORDERS}} orders across the five Bonds and
+   enforces five protocol rules (exclusive tasks, clearance, double-booking,
+   duplicate orders, and duplicate codenames). {{RESULT_DISPATCHED}} orders
+   dispatch successfully, {{RESULT_REJECTED}} are rejected as protocol
+   violations, giving a chaos index of **{{RESULT_CHAOS_INDEX}}**.
+3. **Spoof protocol analyzer** (`spoof_analyzer.py`): a lexical analyzer
+   scores satirical ops doctrine against a sane protocol, detecting
+   absolutist inversions and oxymorons. The film's standing orders score a
+   spoof index of **{{RESULT_SPOOF_INDEX}} / 100**.
 
-Contributions are **methodological** and **architectural**. On the methods side, we relate empirical iteration counts and error decay to the scalar contraction factor $\rho(\alpha) = |1-\alpha|$ and document cases where runs hit $N_{\max} = {{CONFIG_MAX_ITERATIONS}}$ before meeting the gradient tolerance. On the architecture side, we demonstrate a zero-mock test suite on project `src/` (see [test_optimizer.py](https://github.com/docxology/template/blob/main/projects/working/bond/casino_royale_1967/tests/test_optimizer.py)), automated six-figure analysis, and reproducibility metadata (configuration hash, artifact counts) injected into [@sec:reproducibility].
-
-**Results (this configuration):** {{RESULT_NUM_CONVERGED}} of {{CONFIG_NUM_STEP_SIZES}} grid points report `converged=True` in the CSV; non-convergent rows flag either slow progress at small $\alpha$ under the iteration cap or instability when $|1-\alpha| \geq 1$. The analytical minimizer remains $x^\ast = {{RESULT_OPTIMUM_X}}$ with $f(x^\ast) = {{RESULT_OPTIMUM_F}}$ for the configured $(A,b)$.
-
-**Keywords:** {{CONFIG_KEYWORDS}}
+All three models are deterministic (fixed seed, no random draws, no wall
+clock in artifacts) and are exposed as a `MissionProvider` implementing the
+frozen `bond_api` protocol, with a gadget registry and publication-style
+figures. Keywords: {{CONFIG_NUM_AGENTS}}-agent coordination failure, agent
+dispatch simulation, protocol violations, satirical ops doctrine,
+reproducible research.

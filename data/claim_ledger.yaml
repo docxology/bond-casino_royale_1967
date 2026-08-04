@@ -1,57 +1,36 @@
 claims:
-  - claim_id: figure-export-dpi
+  - claim_id: coordination-loss
     kind: number
-    value: 300
-    source: projects/working/bond/casino_royale_1967/src/viz_config.py plotting defaults (dpi)
-    source_tier: project_source
-    freshness: active
-    artifact_path: output/figures/convergence_plot.png
-  - claim_id: step-size-sensitivity-cap
-    kind: number
-    value: 500
-    source: projects/working/bond/casino_royale_1967/src/sweeps.py sensitivity_sweep max_iter cap
+    value: 15
+    source: src/casino_royale_1967/coordination_farce.py analyze_assignments(DEFAULT_ASSIGNMENTS) weighted loss
     source_tier: generated_metric
     freshness: active
-    artifact_path: output/figures/step_size_sensitivity.png
-  - claim_id: stability-log-lower
+    artifact_path: output/data/manuscript_variables.json
+  - claim_id: dispatch-chaos-index
     kind: number
-    value: -6
-    source: projects/working/bond/casino_royale_1967/src/figures/scientific_stability.py stability visualization caption
+    value: 0.615
+    source: src/casino_royale_1967/dispatch_chaos.py simulate_dispatch(CHAOS_ORDERS) violations/total (8/13)
+    source_tier: generated_metric
+    freshness: active
+    artifact_path: output/data/manuscript_variables.json
+  - claim_id: spoof-index
+    kind: number
+    value: 45.0
+    source: src/casino_royale_1967/spoof_analyzer.py analyze_doctrine(CANONICAL_SPOOF_DOCTRINE) normalised index
+    source_tier: generated_metric
+    freshness: active
+    artifact_path: output/data/manuscript_variables.json
+  - claim_id: five-bonds-count
+    kind: number
+    value: 5
+    source: src/casino_royale_1967/coordination_farce.py AGENT_ROSTER length (the 1967 film's five Bonds)
     source_tier: project_source
     freshness: active
-    artifact_path: output/figures/stability_analysis.png
-  - claim_id: solution-relative-error-exponent
+    artifact_path: src/casino_royale_1967/coordination_farce.py
+  - claim_id: task-count
     kind: number
-    value: -4
-    source: projects/working/bond/casino_royale_1967/manuscript/03_results.md stated precision threshold
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: manuscript/03_results.md
-  - claim_id: stability-log-upper
-    kind: number
-    value: -9
-    source: projects/working/bond/casino_royale_1967/src/figures/scientific_stability.py stability visualization caption
+    value: 6
+    source: src/casino_royale_1967/coordination_farce.py TASK_CATALOG length
     source_tier: project_source
     freshness: active
-    artifact_path: output/figures/stability_analysis.png
-  - claim_id: benchmark-tolerance-exponent
-    kind: number
-    value: -10
-    source: projects/working/bond/casino_royale_1967/scripts/optimization_analysis.py dimensional benchmark tolerance
-    source_tier: project_source
-    freshness: active
-    artifact_path: output/figures/performance_benchmark.png
-  - claim_id: benchmark-min-iterations
-    kind: number
-    value: 219
-    source: projects/working/bond/casino_royale_1967/manuscript/03_results.md benchmark caption
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: output/figures/performance_benchmark.png
-  - claim_id: benchmark-max-iterations
-    kind: number
-    value: 238
-    source: projects/working/bond/casino_royale_1967/manuscript/03_results.md benchmark caption
-    source_tier: manuscript_claim
-    freshness: active
-    artifact_path: output/figures/performance_benchmark.png
+    artifact_path: src/casino_royale_1967/coordination_farce.py

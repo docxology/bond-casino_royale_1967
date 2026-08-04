@@ -6,25 +6,18 @@
       "orcid": "0000-0001-6232-9096"
     }
   ],
-  "description": "Source code for Convergence Analysis of Gradient Descent Optimization (2026).",
+  "description": "Source code for Casino Royale: FIVE 00s — Special-Agent Mission Software (2026), a PROJECT BOND film package modelling multi-agent coordination failure, dispatch chaos, and spoof ops doctrine.",
   "keywords": [
-    "optimization algorithms",
-    "gradient descent",
-    "convergence analysis",
-    "numerical methods",
-    "mathematical programming",
-    "reproducible research",
-    "infrastructure automation"
+    "multi-agent coordination",
+    "coordination failure",
+    "agent dispatch simulation",
+    "protocol violations",
+    "satirical ops doctrine",
+    "deterministic modelling",
+    "reproducible research"
   ],
   "license": "MIT",
-  "related_identifiers": [
-    {
-      "identifier": "10.5281/zenodo.20417136",
-      "relation": "isVersionOf",
-      "scheme": "doi"
-    }
-  ],
-  "title": "Convergence Analysis of Gradient Descent Optimization",
+  "title": "Casino Royale: FIVE 00s — Special-Agent Mission Software",
   "upload_type": "software",
-  "version": "2.5.2"
+  "version": "0.1.0"
 }

@@ -1,5 +1,5 @@
-# Code-centric exemplar: optional monorepo adapters only.
-allow_infrastructure_imports:
-  - src/analysis/_infra.py
-  - src/_runtime.py
-  - src/benchmark_support.py
+# Casino Royale (1967) — FIVE 00s · layer contract
+# FIVE 00s imports no `infrastructure.*` anywhere: the domain core
+# (coordination_farce, dispatch_chaos, spoof_analyzer) is pure, and mission.py
+# adapts to the frozen bond_api protocol instead of the template monorepo.
+allow_infrastructure_imports: []

@@ -1,25 +1,30 @@
 conditions:
-  - name: conservative_step
+  - name: base_farce
     role: reference
-    description: "Stable gradient-descent step below the spectral bound."
-  - name: near_optimal_step
+    description: "The canonical DEFAULT_ASSIGNMENTS set (8 orders across 5 overlapping Bonds)."
+  - name: disciplined
     role: proposed
-    description: "Template-recommended step near the stable convergence region."
-  - name: aggressive_step
+    description: "Single-agent deduplication of the base farce."
+  - name: chaos_dispatch
     role: variant
-    description: "Stress condition near or above the stability boundary."
+    description: "The canonical CHAOS_ORDERS stream under the tick-based protocol."
 metrics:
   primary:
-    name: objective_value
+    name: coordination_loss
     direction: minimize
-protocol: "Run the deterministic quadratic optimization sweep with identical initialization, seeds, tolerance, and iteration cap across all declared step-size conditions."
+  secondary:
+    - name: chaos_index
+      direction: minimize
+    - name: spoof_index
+      direction: minimize
+protocol: "Evaluate all analyses deterministically on fixed canonical inputs: fixed seed 7, no random draws, no wall clock in artifacts; identify every protocol rule and count violations directly."
 expected_figures:
-  - fig:convergence_plot
-  - fig:performance_benchmark
-  - fig:step_size_sensitivity
+  - fig:coordination
+  - fig:dispatch
+  - fig:spoof
 expected_tables:
-  - tbl:optimization_results
+  - tbl:fifty_00s_metrics
 baselines:
-  - conservative_step
+  - base_farce
 ablations:
-  - aggressive_step
+  - chaos_dispatch

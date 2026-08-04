@@ -1,40 +1,22 @@
-"""Small code project - numerical optimization utilities.
+"""Casino Royale (1967) — FIVE 00s mission software package.
 
-This project demonstrates a small, fully-tested codebase implementing
-basic numerical optimization algorithms with comprehensive testing
-and analysis capabilities.
+PROJECT BOND film package for *Casino Royale* (1967), the five-Bond farce.
+Implements three deterministic domain concepts plus a ``bond_api``-compatible
+``MissionProvider`` adapter:
+
+* :mod:`casino_royale_1967.coordination_farce` — multi-agent coordination-failure
+  model (five agents, all codename *James Bond*): overlap and conflict detection,
+  weighted coordination loss, deterministic single-agent deduplication.
+* :mod:`casino_royale_1967.dispatch_chaos` — tick-based agent dispatch simulation
+  with duplicate agents and protocol violations (exclusive tasks, clearance,
+  double-booking, duplicate orders, duplicate codenames).
+* :mod:`casino_royale_1967.spoof_analyzer` — satirical ops-doctrine analyzer:
+  lexical inversion scoring, rule-contradiction detection, oxymoron flags, and a
+  normalized spoof index.
+* :mod:`casino_royale_1967.mission` — thin ``bond_api`` adapter exporting
+  ``MissionProvider`` (slug ``casino_royale_1967``, codename *FIVE 00s*) and the
+  film's gadget registry.
+
+The three domain modules are pure and infrastructure-free (stdlib + numpy only):
+they stay importable even if the ``bond-api`` path dependency ever fails.
 """
-
-from .invariants import (
-    InvariantResult,
-    OptimizerSweepConfig,
-    all_invariants,
-    convergence_invariants,
-    gradient_consistency_invariants,
-    trajectory_invariants,
-)
-from .optimizer import (
-    OptimizationResult,
-    compute_gradient,
-    gradient_descent,
-    make_quadratic_problem,
-    quadratic_function,
-    simulate_trajectory,
-)
-
-__all__ = [
-    # Optimizer primitives
-    "quadratic_function",
-    "gradient_descent",
-    "compute_gradient",
-    "make_quadratic_problem",
-    "simulate_trajectory",
-    "OptimizationResult",
-    # Numerical invariants (driven by scripts/build_dashboard.py)
-    "InvariantResult",
-    "OptimizerSweepConfig",
-    "all_invariants",
-    "convergence_invariants",
-    "gradient_consistency_invariants",
-    "trajectory_invariants",
-]

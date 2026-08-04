@@ -1,49 +1,46 @@
-domain: code_research
-display_name: Code Research Exemplar
+domain: multi_agent_coordination
+display_name: Casino Royale (1967) — FIVE 00s Mission Software
 required_packages:
   - numpy
   - matplotlib
+  - bond-api
   - pytest
 preferred_outputs:
   - pdf
   - html
-  - docx
-  - epub
+  - slides
 validation_gates:
-  - experiment_method_design
-  - artifact_manifest
-  - evidence_grounding
-  - render_validation
-  - publication_readiness
+  - determinism
+  - protocol_conformance
+  - coverage_90
+  - zero_mocks
 figure_types:
-  - convergence_plot
-  - performance_benchmark
-  - sensitivity_analysis
+  - coordination_farce
+  - dispatch_chaos
+  - spoof_analyzer
 citation_policy: official_or_scholarly
-source_policy: "Prefer primary project outputs, official package documentation, and scholarly optimization references."
+source_policy: "Sourced numeric claims trace to src/casino_royale_1967 or manuscript/config.yaml; no published external DOI (local-only tree)."
 review_gates:
-  - experiment_method_design
-  - render_validation
-  - publication_readiness
+  - determinism
+  - protocol_conformance
+  - coverage_90
 artifact_expectations:
   - output/data/manuscript_variables.json
-  - output/data/optimization_results.csv
-  - output/figures/convergence_plot.png
-  - output/reports/validation_report.json
-  - output/pdf/template_code_project_combined.pdf
+  - output/manuscript/00_abstract.md
+  - output/figures/coordination_farce.png
+  - output/figures/dispatch_chaos.png
+  - output/figures/spoof_analyzer.png
 benchmark_rubric:
-  name: code-research-readiness
+  name: bond-film-readiness
   dimensions:
-    - name: output_validity
-      weight: 1.0
-    - name: reproducibility_bundle
-      weight: 1.0
-    - name: artifact_manifest
-      weight: 1.0
-    - name: evidence_grounding
+    - name: protocol_conformance
       weight: 2.0
+    - name: determinism
+      weight: 2.0
+    - name: coverage_90
+      weight: 1.0
+    - name: zero_mocks
+      weight: 1.0
     - name: render_success
       weight: 1.0
-    - name: publication_readiness
-      weight: 1.0
-llm_prompt_guidance: "Use generated optimization artifacts and manuscript variables as the evidence source; do not invent numeric results."
+llm_prompt_guidance: "Use generated mission artifacts and manuscript variables as the evidence source; do not invent numeric results."
