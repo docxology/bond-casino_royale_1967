@@ -38,9 +38,15 @@ The work sits at the intersection of several research threads:
 - **Gambling mathematics.** The baccarat table's deal odds reproduce the
   canonical published figures of the chemin de fer drawing rules; the
   hand-collision metric is a birthday-bound application over the exact
-  two-card-total distribution (Ethier 2010; Wizard of Odds). Single-deck
-  play under the standard table is known to invert the banker edge — why
-  casinos deal six to eight decks.
+  two-card-total distribution [@ethier2010doctrine; @wizardofodds_baccarat].
+  Deck count shifts these probabilities only slightly and does **not** reverse
+  their order: the banker bet is still the better side at one deck in the
+  published tables [@wizardofodds_baccarat]. An earlier draft of this section
+  asserted the opposite — that single-deck play inverts the banker edge — which
+  its own cited source contradicts. This model cannot settle the question
+  either way: `deal_outcome_probabilities` weights each card by its value's
+  share of the shoe *with replacement*, so it is an infinite-deck computation
+  and carries no finite-deck depletion effect at all.
 - **Absorbing Markov chains.** The escalation ladder's fundamental matrix and
   expected absorption times follow Kemeny and Snell's classical treatment.
 - **Reproducible computational research.** The project ships live-computed

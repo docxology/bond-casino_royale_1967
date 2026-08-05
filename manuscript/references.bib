@@ -1,15 +1,15 @@
 @comment{
   Bibliography for "Casino Royale: FIVE 00s — Special-Agent Mission Software".
-  Ingested by the Pandoc --citeproc render; references the real sources
-  behind the deepened models (Shannon, Kemeny-Snell, Ethier + canonical
-  works cited in the manuscript).
-}
+  Ingested by the Pandoc --citeproc render.
 
-@misc{friedman2026fivestart,
-  title={Casino Royale: FIVE 00s --- Special-Agent Mission Software},
-  author={Friedman, Daniel Ari},
-  year={2026},
-  note={PROJECT BOND film package (projects/working/bond/casino_royale_1967), local-only working tree}
+  Every key below is cited at least once from a numbered manuscript section,
+  and every `[@key]` in those sections resolves to a key below. That is not a
+  convention, it is a gate:
+  tests/test_manuscript_variables.py::TestBibliography fails in either
+  direction. Under --citeproc a bibliography with no in-text citations emits
+  nothing at all, so an uncited entry is a silently dead reference — this file
+  used to carry one (a self-citation of the manuscript itself, since removed;
+  the package's own citation metadata lives in CITATION.cff).
 }
 
 @article{shannon1948communication,

@@ -19,7 +19,7 @@ Each concept in the film becomes a tested algorithm, not a themed stub.
 | Orders that contradict each other | A dispatch simulation that loses orders to five protocol rules |
 | Standing orders played for laughs | A lexical analyzer scoring doctrine against a sane protocol |
 | Nobody can tell the Bonds apart | An information-theoretic identity model measuring the loss in bits |
-| The baccarat championship | Exact chemin de fer deal odds and a birthday-bound table-collision metric |
+| The baccarat championship | Chemin de fer deal odds (exact for the infinite-deck model) and a birthday-bound table-collision metric (i.i.d. across hands) |
 | A farce escalating to catastrophe | Doctrine as an absorbing Markov chain, timed against discipline |
 
 ## Modules
@@ -32,7 +32,7 @@ Each concept in the film becomes a tested algorithm, not a themed stub.
 | `src/casino_royale_1967/dispatch_chaos.py` | A tick-based, priority-ordered dispatch centre enforcing five protocol rules (duplicate order, exclusive task, clearance, double-booking, duplicate codename), yielding violations, a chaos index and an event timeline |
 | `src/casino_royale_1967/spoof_analyzer.py` | Word-boundary marker scoring, rule-inversion detection and oxymoron flagging over satirical ops doctrine, aggregated into a normalised spoof index |
 | `src/casino_royale_1967/identity_confusion.py` | A softmax routing confusion matrix over agent features; Shannon entropy, conditional entropy, mutual information and NMI; Bayesian resolution of a dispatch sighting |
-| `src/casino_royale_1967/baccarat_table.py` | Hand valuation and the full chemin de fer draw table; exact enumerated deal odds cross-validated against an independent brute force; the birthday-bound hand-collision probability |
+| `src/casino_royale_1967/baccarat_table.py` | Hand valuation and the full chemin de fer draw table; enumerated infinite-deck deal odds cross-validated against an independent brute force; the birthday-bound hand-collision probability, approximate because hands are combined as i.i.d. |
 | `src/casino_royale_1967/escalation_ladder.py` | Doctrine as an absorbing Markov chain — fundamental matrix, expected absorption times, spectral radius, and the spoof-vs-sanctioned acceleration factor |
 
 ### Adapter and generation
@@ -59,7 +59,7 @@ from casino_royale_1967.mission import GADGET_REGISTRY, GADGETS, MissionProvider
 
 provider = MissionProvider()          # provider.film == "casino_royale_1967"
 brief    = provider.brief()           # MissionBrief: 6 objectives, 4 assets, 2 constraints
-report   = provider.recon(request)    # ReconReport:  one Finding per concept
+report   = provider.recon(request)    # ReconReport:  8 Findings (goal + 7 concept findings)
 plan     = provider.plan(brief)       # MissionPlan:  6 Steps, one per module
 outcome  = provider.execute(plan)     # MissionOutcome + Provenance(seed=7, sha256 input hash)
 debrief  = provider.debrief(outcome)  # Debrief: the standing lessons
@@ -76,9 +76,9 @@ byte-reproducible.
 ## Install and test
 
 ```bash
-uv sync --extra dev
+uv sync --all-extras
 uv run pytest tests/ --cov=src --cov-fail-under=90
-uv run ruff check src/ scripts/ && uv run ruff format --check src/ scripts/
+uv run ruff check src/ scripts/ tests/ && uv run ruff format --check src/ scripts/ tests/
 uv run mypy src/ scripts/
 ```
 

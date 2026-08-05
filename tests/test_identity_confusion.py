@@ -19,6 +19,7 @@ from casino_royale_1967.identity_confusion import (
     marginal_routing_distribution,
     mutual_information,
     normalized_mutual_information,
+    residual_identity_entropy,
     resolve_identity,
 )
 
@@ -79,6 +80,43 @@ class TestIdentityMetrics:
         assert conditional_entropy(confusion, prior) == pytest.approx(2.1348, abs=1e-3)
         assert mutual_information(confusion, prior) == pytest.approx(0.1748, abs=1e-3)
         assert normalized_mutual_information(confusion, prior) == pytest.approx(0.0753, abs=1e-3)
+
+    def test_the_two_conditional_entropies_are_different_numbers(self) -> None:
+        """``H(routed|intended)`` is not ``H(intended) - I``.
+
+        The manuscript once wrote the dispatch ambiguity and then "derived" it
+        as prior minus mutual information, which silently swapped directions
+        and produced a paragraph whose own arithmetic did not close. The two
+        quantities differ here by more than a hundredth of a bit, which is
+        enough to show at the printed precision.
+        """
+        confusion = build_confusion_matrix()
+        prior = _uniform(len(AGENT_ROSTER))
+
+        forward = conditional_entropy(confusion, prior)
+        reverse = residual_identity_entropy(confusion, prior)
+        mi = mutual_information(confusion, prior)
+
+        # Each conditional entropy subtracts MI from *its own* marginal.
+        routing = marginal_routing_distribution(confusion, prior)
+        h_routed = entropy(tuple(float(p) for p in routing))
+        assert forward == pytest.approx(h_routed - mi, abs=1e-9)
+        assert reverse == pytest.approx(entropy(prior) - mi, abs=1e-9)
+
+        assert forward != pytest.approx(reverse, abs=1e-2)
+        assert reverse == pytest.approx(2.1471, abs=1e-3)
+
+    def test_symmetric_case_makes_the_two_directions_agree(self) -> None:
+        """Positive control: equal marginals, equal conditional entropies.
+
+        Without this, the inequality above could be read as a property of the
+        formulas rather than of this particular confusion matrix.
+        """
+        confusion = np.array([[0.7, 0.3], [0.3, 0.7]])
+        prior = _uniform(2)
+        assert conditional_entropy(confusion, prior) == pytest.approx(
+            residual_identity_entropy(confusion, prior), abs=1e-9
+        )
 
     def test_conditional_entropy_within_bounds(self) -> None:
         confusion = build_confusion_matrix()
@@ -150,6 +188,15 @@ class TestIdentityReport:
         assert report.codename_entropy == pytest.approx(0.0)  # all share the name
         assert report.conditional_entropy >= report.mutual_information >= 0.0
         assert report.resolution.resolution == "bond_cooper"
+
+    def test_report_carries_both_conditional_entropies(self) -> None:
+        """Both directions are first-class fields, so neither can be implied."""
+        report = analyze_identity()
+        assert report.residual_identity_entropy == pytest.approx(
+            report.prior_entropy - report.mutual_information, abs=1e-9
+        )
+        assert report.conditional_entropy == pytest.approx(report.routing_entropy - report.mutual_information, abs=1e-9)
+        assert report.residual_identity_entropy != pytest.approx(report.conditional_entropy, abs=1e-2)
 
     def test_deterministic(self) -> None:
         assert analyze_identity() == analyze_identity()

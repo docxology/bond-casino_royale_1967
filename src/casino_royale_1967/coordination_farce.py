@@ -17,7 +17,11 @@ This module models that farce deterministically:
   task), conflict detection (agents on conflicting task pairs), clearance
   violations, and a weighted coordination loss;
 * :func:`deduplicate_assignments` — the deterministic single-agent discipline:
-  keep the highest-priority assignment per task, retire the overlap victims.
+  keep the winning assignment per task (the lexicographic maximum of
+  ``(priority, agent_id)``) and retire every other agent on that task. The
+  retired set is exactly ``CoordinationReport.overlap_victims``: both are
+  derived from the same winner rule, so the analysis names the same Bonds the
+  remedy actually drops.
 
 Pure domain logic: stdlib + no ``infrastructure`` imports, no ``bond_api``
 imports. Deterministic by construction (no RNG, no wall clock).
@@ -213,6 +217,31 @@ def _validate_known_ids(assignments: tuple[Assignment, ...]) -> None:
             raise ValueError(f"unknown task id {assignment.task_id!r}")
 
 
+def _winner_by_task(assignments: tuple[Assignment, ...]) -> dict[str, Assignment]:
+    """Per-task winning assignment: the max of ``(priority, agent_id)``.
+
+    The single source of truth for "who keeps this task". Both
+    :func:`analyze_assignments` (to name the overlap victims) and
+    :func:`deduplicate_assignments` (to retire them) call it, so the two can
+    never disagree about which Bond survives a crowded task.
+
+    Args:
+        assignments: the assignment set (ids assumed already validated).
+
+    Returns:
+        Mapping ``task_id -> winning Assignment``.
+    """
+    best: dict[str, Assignment] = {}
+    for assignment in assignments:
+        prior = best.get(assignment.task_id)
+        if prior is None or (assignment.priority, assignment.agent_id) > (
+            prior.priority,
+            prior.agent_id,
+        ):
+            best[assignment.task_id] = assignment
+    return best
+
+
 def analyze_assignments(
     assignments: tuple[Assignment, ...],
     *,
@@ -226,6 +255,12 @@ def analyze_assignments(
     (``n_agents - 1`` per task). Conflict: every unordered pair of *distinct*
     agents assigned to a conflicting task pair counts once. Clearance
     violations are reported but not double-counted in the loss.
+
+    ``overlap_victims[task]`` names the agents a task *loses* under
+    single-agent discipline: every distinct agent on that task except the
+    :func:`_winner_by_task` winner. It is therefore equal, task for task, to
+    ``deduplicate_assignments(...).dropped_by_task`` — pinned by
+    ``tests/test_coordination_farce.py``.
 
     Args:
         assignments: the assignment set to analyze (deterministic order).
@@ -246,6 +281,8 @@ def analyze_assignments(
     for assignment in assignments:
         per_task.setdefault(assignment.task_id, []).append(assignment.agent_id)
 
+    winners = _winner_by_task(assignments)
+
     overlap_count = 0
     overlap_victims: dict[str, tuple[str, ...]] = {}
     for task_id, agent_ids in sorted(per_task.items()):
@@ -253,8 +290,10 @@ def analyze_assignments(
         extras = len(distinct) - 1
         if extras > 0:
             overlap_count += extras
-            # The victims: every agent beyond the first, in stable order.
-            overlap_victims[task_id] = tuple(distinct[1:])
+            # The victims: every distinct agent the task loses under
+            # single-agent discipline — i.e. everyone but the winner.
+            keeper = winners[task_id].agent_id
+            overlap_victims[task_id] = tuple(a for a in distinct if a != keeper)
 
     conflict_count = 0
     for pair in sorted(tuple(sorted(p)) for p in conflict_graph):
@@ -300,14 +339,15 @@ class DedupResult:
 def deduplicate_assignments(
     assignments: tuple[Assignment, ...],
 ) -> DedupResult:
-    """Keep the highest-priority assignment per task; retire the rest.
+    """Keep the winning assignment per task; retire every other agent on it.
 
     The farce's antidote: one agent per task, chosen by the lexicographic
     maximum of ``(priority, agent_id)`` — highest priority wins, and an exact
     tie is broken by the *greatest* agent id, which makes the choice a pure
-    function of the input set regardless of assignment order. Retired
-    assignments are the overlap victims — the Bonds who showed up to a party
-    already attended.
+    function of the input set regardless of assignment order. The retired
+    agents are exactly ``analyze_assignments(...).overlap_victims``: both
+    functions call :func:`_winner_by_task`, so the analysis and the remedy name
+    the same Bonds.
 
     Args:
         assignments: the assignment set (unknown ids raise ``ValueError``).
@@ -320,14 +360,7 @@ def deduplicate_assignments(
     """
     _validate_known_ids(assignments)
 
-    best: dict[str, Assignment] = {}
-    for assignment in assignments:
-        prior = best.get(assignment.task_id)
-        if prior is None or (assignment.priority, assignment.agent_id) > (
-            prior.priority,
-            prior.agent_id,
-        ):
-            best[assignment.task_id] = assignment
+    best = _winner_by_task(assignments)
 
     kept = tuple(best[task_id] for task_id in sorted(best))
     kept_ids = {(a.task_id, a.agent_id) for a in kept}

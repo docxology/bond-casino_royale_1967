@@ -151,7 +151,7 @@ def render_identity_figure(output_dir: Path) -> Path:
     ax.set_ylabel("intended agent")
     ax.set_title(
         f"Identity confusion: routing NMI {report.normalized_mutual_information:.3f}, "
-        f"ambiguity {report.conditional_entropy:.2f} bits"
+        f"H(routed|intended) {report.conditional_entropy:.2f} bits"
     )
     fig.colorbar(image, ax=ax)
     fig.tight_layout()

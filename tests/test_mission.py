@@ -72,11 +72,18 @@ class TestMissionLifecycle:
         assert len(brief.constraints) == 2
 
     def test_recon(self) -> None:
+        """The recon surface is pinned exactly, not by superset.
+
+        Documentation used to claim "one Finding per concept"; the provider
+        actually returns the request goal plus seven concept findings, because
+        the coordination model contributes both ``overlap`` and ``conflict``.
+        An inclusive ``>=`` check could never catch that drift, so the tuple is
+        asserted in full and in order.
+        """
         provider = FilmProvider()
         report = provider.recon(ReconRequest(goal="characterize the farce"))
         assert isinstance(report, ReconReport)
-        labels = {f.label for f in report.findings}
-        assert labels >= {
+        assert tuple(f.label for f in report.findings) == (
             "goal",
             "overlap",
             "conflict",
@@ -85,7 +92,9 @@ class TestMissionLifecycle:
             "identity",
             "table",
             "escalation",
-        }
+        )
+        assert len(report.findings) == 8
+        assert report.findings[0].detail == "characterize the farce"
 
     def test_plan(self) -> None:
         provider = FilmProvider()

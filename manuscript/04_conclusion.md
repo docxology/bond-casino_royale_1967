@@ -17,14 +17,17 @@ PROJECT BOND mission protocol:
    {{RESULT_CHAOS_INDEX}});
 3. the **spoof protocol analyzer**, scoring satirical ops doctrine at
    {{RESULT_SPOOF_INDEX}} / 100;
-4. the **identity-confusion model**, showing the shared codename collapses to
-   {{RESULT_IDENTITY_NMI}} normalized mutual information and
-   {{RESULT_IDENTITY_AMBIGUITY}} bits of per-dispatch ambiguity, resolved by
-   Bayes to *{{RESULT_IDENTITY_RESOLUTION}}*;
-5. the **baccarat table model**, deriving the exact deal odds (player
-   {{RESULT_BACCARAT_PLAYER}}, banker {{RESULT_BACCARAT_BANKER}}) and a
-   {{RESULT_TABLE_COLLISION}} probability that two of the
-   {{CONFIG_TABLE_BONDS}} Bonds are dealt the same hand total;
+4. the **identity-confusion model**, showing the shared codename collapses
+   routing to {{RESULT_IDENTITY_NMI}} normalized mutual information, leaving a
+   forward dispatch ambiguity `H(routed | intended)` of
+   {{RESULT_IDENTITY_AMBIGUITY}} bits and a reverse residual
+   `H(intended | routed)` of {{RESULT_IDENTITY_RESIDUAL}} bits, with a sighting
+   resolved by Bayes to *{{RESULT_IDENTITY_RESOLUTION}}*;
+5. the **baccarat table model**, deriving deal odds exact for the
+   infinite-deck model (player {{RESULT_BACCARAT_PLAYER}}, banker
+   {{RESULT_BACCARAT_BANKER}}) and an approximate
+   {{RESULT_TABLE_COLLISION}} probability — i.i.d. across hands — that two of
+   the {{CONFIG_TABLE_BONDS}} Bonds are dealt the same hand total;
 6. the **escalation-ladder model**, showing the farce accelerates to
    catastrophe {{RESULT_ESCALATION_ACCELERATION}}× faster than discretion
    ({{RESULT_ESCALATION_SPOOF}} vs {{RESULT_ESCALATION_SANCTIONED}} steps).

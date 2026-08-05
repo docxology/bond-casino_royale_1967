@@ -60,8 +60,15 @@ Bayesian resolution depend on them.
   is documented in the methodology, not a defect.
 - **The birthday metric assumes independence across hands.** Within a hand the
   two-card distribution is exact and without replacement; *across* the seated
-  Bonds the collision bound treats hands as i.i.d. This approximation is stated
-  in the `distinct_total_probability` docstring and in the methodology.
+  Bonds the collision bound treats hands as i.i.d. The approximation is stated
+  in the `distinct_total_probability` and `hand_collision_probability`
+  docstrings, in the methodology, and in the results, and
+  `test_iid_approximation_is_not_exact` demonstrates on a small deck that the
+  gap is real (about four percentage points there). Its magnitude for a
+  52-card shoe and five hands is **not** quantified: an exact
+  without-replacement enumeration of ten cards from fifty-two was judged too
+  slow for the suite. Anyone quoting the headline collision figure should quote
+  it as approximate.
 - **The spoof index is a satirical diagnostic.** It is a lexical measure over
   declared marker tables, not a validated instrument for real organisational
   doctrine. `07_scope_and_related_work.md` says so explicitly.

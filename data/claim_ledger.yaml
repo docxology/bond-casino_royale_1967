@@ -59,6 +59,9 @@ claims:
     kind: number
     value: 0.704
     source: src/casino_royale_1967/baccarat_table.py hand_collision_probability(5) birthday bound
+    # APPROXIMATE: hands are combined as i.i.d.; the exact no-replacement value
+    # for a full shoe is not computed (see TODO.md and 03_results.md).
+    approximation: iid-across-hands
     source_tier: generated_metric
     freshness: active
     artifact_path: output/data/manuscript_variables.json

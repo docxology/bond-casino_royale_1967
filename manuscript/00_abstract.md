@@ -21,15 +21,15 @@ tests six concepts drawn from the film's organizational failure:
    score **{{RESULT_SPOOF_INDEX}} / 100**.
 4. **Identity-confusion model** (`identity_confusion.py`): information theory
    over the shared codename — routing carries only
-   {{RESULT_IDENTITY_NMI}} normalized mutual information, so each dispatch
-   loses {{RESULT_IDENTITY_AMBIGUITY}} bits of identity, and a Bayesian
-   sighting resolves to *{{RESULT_IDENTITY_RESOLUTION}}* with confidence
-   {{RESULT_IDENTITY_CONFIDENCE}}.
-5. **Baccarat table model** (`baccarat_table.py`): exact combinatorial deal
-   odds (player {{RESULT_BACCARAT_PLAYER}}, banker
-   {{RESULT_BACCARAT_BANKER}}, tie {{RESULT_BACCARAT_TIE}}) and the
+   {{RESULT_IDENTITY_NMI}} normalized mutual information, leaving a dispatch
+   ambiguity `H(routed | intended)` of {{RESULT_IDENTITY_AMBIGUITY}} bits, and
+   a Bayesian sighting resolves to *{{RESULT_IDENTITY_RESOLUTION}}* with
+   confidence {{RESULT_IDENTITY_CONFIDENCE}}.
+5. **Baccarat table model** (`baccarat_table.py`): combinatorial deal odds
+   exact for the infinite-deck model (player {{RESULT_BACCARAT_PLAYER}}, banker
+   {{RESULT_BACCARAT_BANKER}}, tie {{RESULT_BACCARAT_TIE}}) and a
    {{CONFIG_TABLE_BONDS}}-Bond table collision probability of
-   {{RESULT_TABLE_COLLISION}}.
+   {{RESULT_TABLE_COLLISION}} under an i.i.d.-across-hands approximation.
 6. **Escalation-ladder model** (`escalation_ladder.py`): the doctrine as an
    absorbing Markov chain — the spoof doctrine reaches catastrophe in
    {{RESULT_ESCALATION_SPOOF}} steps versus

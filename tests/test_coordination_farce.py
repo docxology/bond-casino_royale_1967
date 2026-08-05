@@ -8,6 +8,7 @@ from casino_royale_1967.coordination_farce import (
     AGENT_ROSTER,
     DEFAULT_ASSIGNMENTS,
     TASK_CATALOG,
+    Assignment,
     analyze_assignments,
     deduplicate_assignments,
 )
@@ -47,11 +48,18 @@ class TestAnalyzeAssignments:
         assert len(report.clearance_violations) == 1
         assert report.loss == 15.0
 
-    def test_overlap_victims_are_the_extra_bonds(self) -> None:
+    def test_overlap_victims_are_the_bonds_the_task_loses(self) -> None:
+        """Victims are everyone but the winner — not "everyone but the first".
+
+        Regression guard: the victims used to be ``sorted(distinct)[1:]``, the
+        agents after the lexicographically first id, which named
+        ``bond_vesper`` as the SMERSH victim while single-agent discipline
+        actually retires ``bond_jimmy``. The docs claimed the two sets were the
+        same; they were not.
+        """
         report = analyze_assignments(DEFAULT_ASSIGNMENTS)
-        # Victims are the extras beyond the lexicographically-first agent.
-        assert report.overlap_victims["baccarat"] == ("bond_tremble", "bond_vesper")
-        assert report.overlap_victims["smersh_hq"] == ("bond_vesper",)
+        assert report.overlap_victims["baccarat"] == ("bond_sir", "bond_vesper")
+        assert report.overlap_victims["smersh_hq"] == ("bond_jimmy",)
 
     def test_per_task_load(self) -> None:
         report = analyze_assignments(DEFAULT_ASSIGNMENTS)
@@ -182,6 +190,43 @@ class TestDeduplicateAssignments:
         result = deduplicate_assignments(DEFAULT_ASSIGNMENTS)
         assert result.dropped_by_task["baccarat"] == ("bond_sir", "bond_vesper")
         assert result.dropped_by_task["smersh_hq"] == ("bond_jimmy",)
+
+    @pytest.mark.parametrize(
+        "assignments",
+        [
+            DEFAULT_ASSIGNMENTS,
+            # Winner is the lexicographically *first* id, so a victims rule
+            # keyed on sort order rather than on the winner would disagree.
+            (
+                Assignment("bond_cooper", "mata_bond", 9),
+                Assignment("bond_vesper", "mata_bond", 1),
+                Assignment("bond_sir", "mata_bond", 1),
+            ),
+            # Priority tie: the greatest id wins, the rest are retired.
+            (
+                Assignment("bond_jimmy", "casino_vault", 2),
+                Assignment("bond_vesper", "casino_vault", 2),
+            ),
+            # Same agent listed twice on one task is not its own victim.
+            (
+                Assignment("bond_sir", "gamma_ray", 1),
+                Assignment("bond_sir", "gamma_ray", 4),
+                Assignment("bond_cooper", "gamma_ray", 2),
+            ),
+        ],
+    )
+    def test_overlap_victims_equal_the_dropped_agents(
+        self,
+        assignments: tuple[Assignment, ...],
+    ) -> None:
+        """The claim the docs make: the analysis names what the remedy drops.
+
+        Both sides derive from ``_winner_by_task``, so this must hold task for
+        task on every input — not just on the canonical farce.
+        """
+        report = analyze_assignments(assignments)
+        result = deduplicate_assignments(assignments)
+        assert report.overlap_victims == result.dropped_by_task
 
     def test_deterministic_output(self) -> None:
         assert deduplicate_assignments(DEFAULT_ASSIGNMENTS) == (deduplicate_assignments(DEFAULT_ASSIGNMENTS))

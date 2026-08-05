@@ -43,8 +43,17 @@ class TestMissionCLI:
         result = _run("recon")
         assert result.returncode == 0
         payload = json.loads(result.stdout)
-        labels = {f["label"] for f in payload["findings"]}
-        assert "doctrine" in labels
+        labels = tuple(f["label"] for f in payload["findings"])
+        assert labels == (
+            "goal",
+            "overlap",
+            "conflict",
+            "dispatch",
+            "doctrine",
+            "identity",
+            "table",
+            "escalation",
+        )
 
     def test_plan(self) -> None:
         result = _run("plan")

@@ -209,9 +209,11 @@ def _identity_payload() -> dict[str, Any]:
         "prior_entropy": report.prior_entropy,
         "codename_entropy": report.codename_entropy,
         "conditional_entropy": report.conditional_entropy,
+        "residual_identity_entropy": report.residual_identity_entropy,
         "routing_entropy": report.routing_entropy,
         "mutual_information": report.mutual_information,
         "normalized_mutual_information": report.normalized_mutual_information,
+        # H(routed | intended): where an order lands given who it was meant for.
         "identity_ambiguity_bits": report.conditional_entropy,
         "resolution": report.resolution.resolution,
         "resolution_confidence": report.resolution.confidence,
@@ -461,7 +463,7 @@ class MissionProvider:  # noqa: N801 — class name fixed by the discovery contr
             outcome=outcome,
             lessons=(
                 "five agents sharing one codename guarantees overlap loss",
-                f"identity confusion costs {identity['identity_ambiguity_bits']:.2f} bits per dispatch",
+                f"dispatch ambiguity H(routed|intended) is {identity['identity_ambiguity_bits']:.2f} bits per order",
                 f"a {baccarat['table_bonds']}-Bond table collides on a hand total with probability {baccarat['hand_collision_probability']:.2f}",
                 f"the spoof doctrine escalates {escalation['acceleration_factor']:.1f}x faster than discretion",
                 f"coordination loss stays {coordination['loss']} until discipline",

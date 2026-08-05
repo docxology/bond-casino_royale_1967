@@ -215,8 +215,13 @@ def generate_variables(project_root: Path, *, now: datetime | None = None) -> di
         # Identity-confusion results
         "RESULT_IDENTITY_NMI": f"{identity.normalized_mutual_information:.3f}",
         "RESULT_IDENTITY_MI": f"{identity.mutual_information:.3f}",
-        "RESULT_IDENTITY_PRIOR_ENTROPY": f"{identity.prior_entropy:.2f}",
-        "RESULT_IDENTITY_AMBIGUITY": f"{identity.conditional_entropy:.2f}",
+        # Every entropy in bits at three decimals, so the two subtractions the
+        # manuscript states — H(routed) - I and H(intended) - I — reconcile
+        # exactly at the printed precision instead of only approximately.
+        "RESULT_IDENTITY_PRIOR_ENTROPY": f"{identity.prior_entropy:.3f}",
+        "RESULT_IDENTITY_ROUTING_ENTROPY": f"{identity.routing_entropy:.3f}",
+        "RESULT_IDENTITY_AMBIGUITY": f"{identity.conditional_entropy:.3f}",
+        "RESULT_IDENTITY_RESIDUAL": f"{identity.residual_identity_entropy:.3f}",
         "RESULT_IDENTITY_RESOLUTION": identity.resolution.resolution,
         "RESULT_IDENTITY_CONFIDENCE": f"{identity.resolution.confidence:.3f}",
         # Baccarat-table results

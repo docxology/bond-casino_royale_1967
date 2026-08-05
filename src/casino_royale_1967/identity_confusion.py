@@ -10,10 +10,15 @@ with real information theory and Bayesian inference:
   clearance + a one-hot over the roster's distinct jurisdictions, *not* over
   the task catalog);
 * **information-theoretic metrics**: prior entropy of the intended identity,
-  conditional entropy of routing given intent (the expected confusion per
-  dispatch), marginal routing entropy, mutual information, and normalized
-  mutual information — plus the satirical headline that the *codename*
-  itself carries zero bits (all five share it);
+  conditional entropy of routing given intent (``H(routed | intended)`` — the
+  expected confusion per dispatch), the reverse conditional entropy
+  ``H(intended | routed) = H(intended) - I`` (what is still unknown about the
+  intended Bond after seeing where the order landed), marginal routing
+  entropy, mutual information, and normalized mutual information — plus the
+  satirical headline that the *codename* itself carries zero bits (all five
+  share it). The two conditional entropies are different numbers and are kept
+  distinct throughout: ``H(routed | intended)`` subtracts from ``H(routed)``,
+  ``H(intended | routed)`` subtracts from ``H(intended)``;
 * **Bayesian identity resolution**: given a sighting's evidence (jurisdiction
   match, clearance sufficiency) the model computes the posterior over the
   five physical agents and reports the argmax resolution with its confidence.
@@ -54,6 +59,7 @@ __all__ = [
     "marginal_routing_distribution",
     "mutual_information",
     "normalized_mutual_information",
+    "residual_identity_entropy",
     "resolve_identity",
 ]
 
@@ -155,8 +161,12 @@ def _row_entropies(confusion: np.ndarray) -> np.ndarray:
 def conditional_entropy(confusion: np.ndarray, prior: tuple[float, ...]) -> float:
     """Expected entropy of routing given intent: ``H(routed | intended)``.
 
-    This is the **identity ambiguity** — the number of bits lost per dispatch
-    because the dispatch centre cannot tell the Bonds apart.
+    This is the **dispatch ambiguity**: knowing exactly which Bond an order was
+    meant for, this many bits of uncertainty remain about which Bond it
+    actually reaches. It is *not* the residual uncertainty about the intended
+    identity given an observed routing — that is the other direction,
+    :func:`residual_identity_entropy`, and the two are equal only when the two
+    marginals coincide.
 
     Args:
         confusion: row-stochastic confusion matrix.
@@ -167,6 +177,25 @@ def conditional_entropy(confusion: np.ndarray, prior: tuple[float, ...]) -> floa
     """
     row_entropies = _row_entropies(confusion)
     return float(sum(p * row_entropies[i] for i, p in enumerate(prior)))
+
+
+def residual_identity_entropy(confusion: np.ndarray, prior: tuple[float, ...]) -> float:
+    """Reverse conditional entropy ``H(intended | routed) = H(intended) - I``.
+
+    The bits of *intended* identity still unresolved after the routing has been
+    observed — the quantity that subtracts from the prior entropy. Writing
+    ``H(intended) - I`` and then labelling the difference "ambiguity" is only
+    correct for this direction; the forward direction
+    (:func:`conditional_entropy`) subtracts from ``H(routed)`` instead.
+
+    Args:
+        confusion: row-stochastic confusion matrix.
+        prior: prior distribution over intended agents.
+
+    Returns:
+        ``H(intended) - I(intended; routed)`` in bits.
+    """
+    return float(entropy(prior) - mutual_information(confusion, prior))
 
 
 def marginal_routing_distribution(confusion: np.ndarray, prior: tuple[float, ...]) -> np.ndarray:
@@ -277,7 +306,8 @@ class IdentityReport:
 
     prior_entropy: float  # H(intended) with uniform prior, bits
     codename_entropy: float  # H(codename): 0.0 — every Bond shares the name
-    conditional_entropy: float  # H(routed | intended): identity ambiguity, bits
+    conditional_entropy: float  # H(routed | intended): dispatch ambiguity, bits
+    residual_identity_entropy: float  # H(intended | routed) = prior - MI, bits
     routing_entropy: float  # H(routed), bits
     mutual_information: float  # I(intended; routed), bits
     normalized_mutual_information: float  # NMI in [0, 1]
@@ -318,6 +348,7 @@ def analyze_identity(
         prior_entropy=h_intended,
         codename_entropy=0.0,  # all five agents share the codename "James Bond"
         conditional_entropy=h_conditional,
+        residual_identity_entropy=h_intended - mi,
         routing_entropy=h_routed,
         mutual_information=mi,
         normalized_mutual_information=nmi,

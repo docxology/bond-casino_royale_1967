@@ -24,17 +24,18 @@ Every artifact in this project is deterministic by construction:
 | Conflicts | {{RESULT_CONFLICT_COUNT}} |
 | Coordination loss | {{RESULT_COORDINATION_LOSS}} |
 | Clearance violations | {{RESULT_CLEARANCE_VIOLATIONS}} |
-| Dispatching (kept / dropped) | {{RESULT_DEDUP_KEPT}} / {{RESULT_DEDUP_DROPPED}} |
+| Single-agent deduplication of assignments (kept / dropped) | {{RESULT_DEDUP_KEPT}} / {{RESULT_DEDUP_DROPPED}} |
 | Dispatch orders | {{RESULT_ORDERS}} |
-| Dispatched / rejected | {{RESULT_DISPATCHED}} / {{RESULT_REJECTED}} |
+| Dispatched / rejected orders | {{RESULT_DISPATCHED}} / {{RESULT_REJECTED}} |
 | Protocol violations | {{RESULT_VIOLATIONS}} |
 | Chaos index | {{RESULT_CHAOS_INDEX}} |
 | Success ratio | {{RESULT_SUCCESS_RATIO}} |
 | Spoof index | {{RESULT_SPOOF_INDEX}} / 100 |
 | Identity NMI | {{RESULT_IDENTITY_NMI}} |
-| Identity ambiguity (bits) | {{RESULT_IDENTITY_AMBIGUITY}} |
+| Dispatch ambiguity `H(routed \| intended)` (bits) | {{RESULT_IDENTITY_AMBIGUITY}} |
+| Residual identity `H(intended \| routed)` (bits) | {{RESULT_IDENTITY_RESIDUAL}} |
 | Baccarat player / banker | {{RESULT_BACCARAT_PLAYER}} / {{RESULT_BACCARAT_BANKER}} |
-| Table collision ({{CONFIG_TABLE_BONDS}} Bonds) | {{RESULT_TABLE_COLLISION}} |
+| Table collision ({{CONFIG_TABLE_BONDS}} Bonds, i.i.d.-across-hands approximation) | {{RESULT_TABLE_COLLISION}} |
 | Escalation (spoof / sanctioned steps) | {{RESULT_ESCALATION_SPOOF}} / {{RESULT_ESCALATION_SANCTIONED}} |
 | Acceleration factor | {{RESULT_ESCALATION_ACCELERATION}}× |
 

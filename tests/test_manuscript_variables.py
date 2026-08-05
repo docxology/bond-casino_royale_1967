@@ -284,6 +284,63 @@ class TestNoHandAuthoredMetrics:
             assert text.count("{{RESULT_") >= 5, f"{name} reports too few tokens to be a results section"
 
 
+class TestBibliography:
+    """references.bib and the manuscript's citations must match, both ways.
+
+    Under Pandoc ``--citeproc`` a bibliography with zero in-text citations and
+    no ``nocite`` emits **nothing**: an uncited entry is dead weight that looks
+    like scholarship. Every key in the file used to be uncited, so this gate
+    exists to make that state impossible rather than merely discouraged.
+    """
+
+    #: ``@type{key,`` — the entry key, skipping ``@comment`` blocks.
+    ENTRY = re.compile(r"^@(?!comment\b)[A-Za-z]+\{([^,\s]+),", re.MULTILINE)
+    #: ``[@key]``, ``[@a; @b]`` and narrative ``@key``.
+    CITATION = re.compile(r"@([A-Za-z][A-Za-z0-9_:.#$%&+?<>~/-]*)")
+    #: pandoc-crossref references (``[@fig:x]``) are not bibliography keys.
+    CROSSREF_PREFIXES: tuple[str, ...] = ("fig:", "sec:", "tbl:", "eq:", "lst:")
+
+    def _bib_keys(self) -> set[str]:
+        text = (_MANUSCRIPT / "references.bib").read_text(encoding="utf-8")
+        return set(self.ENTRY.findall(text))
+
+    def _cited_keys(self) -> set[str]:
+        cited: set[str] = set()
+        for section in sorted(_MANUSCRIPT.glob("[0-9]*.md")):
+            cited.update(self.CITATION.findall(section.read_text(encoding="utf-8")))
+        return {key for key in cited if not key.startswith(self.CROSSREF_PREFIXES)}
+
+    def test_bibliography_is_not_empty(self) -> None:
+        """Guard against a vacuous pass if references.bib is emptied."""
+        assert len(self._bib_keys()) >= 5
+
+    def test_every_bib_entry_is_cited(self) -> None:
+        uncited = sorted(self._bib_keys() - self._cited_keys())
+        assert not uncited, f"bibliography entries never cited in prose: {uncited}"
+
+    def test_every_citation_resolves_to_a_bib_entry(self) -> None:
+        dangling = sorted(self._cited_keys() - self._bib_keys())
+        assert not dangling, f"citations with no references.bib entry: {dangling}"
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("as shown [@shannon1948communication]", {"shannon1948communication"}),
+            ("[@ethier2010doctrine; @wizardofodds_baccarat]", {"ethier2010doctrine", "wizardofodds_baccarat"}),
+            ("narrative @kemeny1960finite form", {"kemeny1960finite"}),
+            ("no citations here at all", set()),
+        ],
+    )
+    def test_citation_regex_is_not_vacuous(self, text: str, expected: set[str]) -> None:
+        """Positive controls: the scanner must actually find citation keys."""
+        assert set(self.CITATION.findall(text)) == expected
+
+    def test_entry_regex_skips_the_comment_block(self) -> None:
+        """The ``@comment{...}`` header is not an entry and must not count."""
+        sample = "@comment{\n  notes\n}\n\n@book{real2020key,\n  title = {T}\n}\n"
+        assert set(self.ENTRY.findall(sample)) == {"real2020key"}
+
+
 class TestWriteResolvedTree:
     """Strict token substitution into output/manuscript/."""
 

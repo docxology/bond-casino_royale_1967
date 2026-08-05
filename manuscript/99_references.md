@@ -1,8 +1,12 @@
 # References
 
-- Friedman, D. A. (2026). *Casino Royale: FIVE 00s — Special-Agent Mission
-  Software.* PROJECT BOND film package
-  (`projects/working/bond/casino_royale_1967`), local-only working tree.
+This is the human-readable list. The machine-readable bibliography is
+`manuscript/references.bib`, and every key in it is cited at least once from a
+numbered section — enforced in both directions by
+`tests/test_manuscript_variables.py::TestBibliography`. The BOND-API entry
+below is a local path reference rather than a bibliography record and
+therefore carries no key.
+
 - Shannon, C. E. (1948). *A Mathematical Theory of Communication.* The Bell
   System Technical Journal, 27(3), 379–423. — entropy / mutual information
   behind the identity-confusion model.

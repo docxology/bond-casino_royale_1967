@@ -54,7 +54,12 @@ The film's premise as data, plus one analysis function.
   conflicts`.
 - **`deduplicate_assignments`** is the remedy: keep the lexicographic maximum
   of `(priority, agent_id)` per task, so the result is a pure function of the
-  assignment *set* rather than of its ordering.
+  assignment *set* rather than of its ordering. It retires exactly the agents
+  `analyze_assignments` names as `overlap_victims` — both call the shared
+  `_winner_by_task`, and a test asserts `overlap_victims == dropped_by_task`
+  task for task. (Before that helper existed the victims were "everyone after
+  the lexicographically first id", which named a different Bond than the one
+  deduplication actually dropped, while three documents claimed they matched.)
 
 Every other domain module depends on this one for the roster and catalog.
 
@@ -91,16 +96,20 @@ Information theory over the shared codename.
   the roster's *distinct jurisdictions*, not the task catalog). Row-stochastic
   and deterministic. The codename contributes no feature at all, because it is
   identical for everyone — which is exactly the point.
-- **`entropy` / `conditional_entropy` / `mutual_information` /
-  `normalized_mutual_information`** — `H(intended)`, the identity ambiguity
-  `H(routed | intended)`, `I = H(routed) - H(routed | intended)`, and `NMI`
-  normalized by `max(H(intended), H(routed))`.
+- **`entropy` / `conditional_entropy` / `residual_identity_entropy` /
+  `mutual_information` / `normalized_mutual_information`** — `H(intended)`;
+  the forward *dispatch ambiguity* `H(routed | intended)`; the reverse
+  residual `H(intended | routed) = H(intended) - I`; the mutual information
+  `I = H(routed) - H(routed | intended)`; and `NMI` normalized by
+  `max(H(intended), H(routed))`. The two conditional entropies are separate
+  functions and separate report fields because they are different numbers —
+  subtracting `I` from the prior does **not** give the dispatch ambiguity.
 - **`resolve_identity`** — a Bayesian posterior over the roster from a
   sighting's `(jurisdiction_match, clearance_ok)` evidence, using a documented
   likelihood table; the argmax is the resolution and its mass the confidence.
 - **`analyze_identity`** bundles all of it into a frozen `IdentityReport`.
 
-### 5. `baccarat_table.py` — exact odds at the table everyone showed up to
+### 5. `baccarat_table.py` — the odds at the table everyone showed up to
 
 - **Hand rules**: `hand_total` (mod 10), `is_natural`, `player_should_draw`,
   and `banker_should_draw` implementing the full chemin de fer banque table.
@@ -114,7 +123,12 @@ Information theory over the shared codename.
   no-replacement two-card total distribution, and
   **`hand_collision_probability`** applies the birthday bound (via the
   elementary symmetric polynomial `n! * e_n`) to ask how likely it is that two
-  of the seated Bonds are dealt the same total.
+  of the seated Bonds are dealt the same total. That last step is the one
+  **approximation** in the package: the per-hand marginal is exact, but the
+  hands are then combined as independent, whereas a real deal draws them all
+  from one shrinking shoe. `test_iid_approximation_is_not_exact` brute-forces a
+  small deck where the gap is about four percentage points, so the caveat is
+  demonstrated rather than merely asserted.
 
 ### 6. `escalation_ladder.py` — doctrine as an absorbing Markov chain
 
@@ -171,7 +185,12 @@ wall clock, so `brief → recon → plan → execute → debrief` is byte-reprod
    four `Asset`s (roster manifest, spoof doctrine, casino table, escalation
    ladder), and two `Constraint`s (determinism, frozen-protocol boundary).
 2. **`recon(request: ReconRequest) -> ReconReport`** — runs all six analyses
-   and returns one `Finding` per concept, plus the request's goal.
+   and returns **eight** `Finding`s in a fixed order: `goal` (echoing the
+   request), then `overlap`, `conflict`, `dispatch`, `doctrine`, `identity`,
+   `table`, `escalation`. The coordination model contributes two findings
+   (`overlap` and `conflict`), so the count is not one per concept.
+   `tests/test_mission.py` pins the exact tuple, so adding or dropping a
+   finding fails the suite until this list is updated with it.
 3. **`plan(brief: MissionBrief) -> MissionPlan`** — six `Step`s, one per
    concept module, whose `params` reference the assets declared in the brief.
 4. **`execute(plan: MissionPlan) -> MissionOutcome`** — runs the six payload

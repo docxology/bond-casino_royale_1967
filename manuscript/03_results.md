@@ -70,11 +70,23 @@ The five Bonds share one codename, and the resulting identity collapse is
 measured in bits. Routing carries only
 **{{RESULT_IDENTITY_NMI}} normalized mutual information** (a near-zero value:
 the observed routing reveals almost nothing about which physical Bond was
-intended), while each dispatch loses **{{RESULT_IDENTITY_AMBIGUITY}} bits** of
-identity. In absolute terms the intended identity carries
-{{RESULT_IDENTITY_PRIOR_ENTROPY}} bits and routing recovers only
-{{RESULT_IDENTITY_MI}} bits of it. A Bayesian sighting
-(jurisdiction match + clearance sufficiency) at
+intended) — {{RESULT_IDENTITY_MI}} bits of mutual information in absolute
+terms. Two distinct conditional entropies follow from that, and they are not
+interchangeable [@cover2006elements]:
+
+| Direction | Reading | Bits |
+|---|---|---|
+| `H(routed \| intended)` | knowing who the order was *for*, how uncertain its destination is | {{RESULT_IDENTITY_AMBIGUITY}} |
+| `H(intended \| routed)` | seeing where the order *landed*, how uncertain its author's intent is | {{RESULT_IDENTITY_RESIDUAL}} |
+
+The first subtracts the mutual information from the routing entropy
+({{RESULT_IDENTITY_ROUTING_ENTROPY}} bits); the second subtracts it from the
+prior entropy of the intended identity
+({{RESULT_IDENTITY_PRIOR_ENTROPY}} bits). This manuscript reports the first as
+the **dispatch ambiguity**; the phrase "bits of identity lost per dispatch"
+refers to that forward direction and must not be computed as
+prior minus mutual information, which yields the second, larger figure.
+A Bayesian sighting (jurisdiction match + clearance sufficiency) at
 the SMERSH operation resolves to *{{RESULT_IDENTITY_RESOLUTION}}* with
 posterior confidence {{RESULT_IDENTITY_CONFIDENCE}}.
 
@@ -82,13 +94,25 @@ posterior confidence {{RESULT_IDENTITY_CONFIDENCE}}.
 
 ## The casino table
 
-The baccarat table model derives the exact deal odds under the standard
+The baccarat table model derives the deal odds under the standard
 chemin de fer drawing rules: **player {{RESULT_BACCARAT_PLAYER}}, banker
 {{RESULT_BACCARAT_BANKER}}, tie {{RESULT_BACCARAT_TIE}}** (a banker advantage
-of {{RESULT_BANKER_ADVANTAGE}}) — the canonical infinite-deck figures. The
-farce lives at the table itself: with all {{CONFIG_TABLE_BONDS}} Bonds seated,
-the probability that at least two are dealt the same hand total is
+of {{RESULT_BANKER_ADVANTAGE}}) — the canonical infinite-deck figures
+[@ethier2010doctrine], exact for the with-replacement model the enumeration
+implements.
+
+The farce lives at the table itself: with all {{CONFIG_TABLE_BONDS}} Bonds
+seated, the probability that at least two are dealt the same hand total is
 **{{RESULT_TABLE_COLLISION}}** — a hand-collision farce more likely than not.
+That figure is not exact. Each Bond's two-card total is drawn from the exact
+no-replacement distribution of a single hand, but the five hands are then
+combined as if independent, whereas in a real deal they compete for the same
+shoe. The number is therefore the collision probability *under the
+i.i.d.-across-hands approximation* the code documents, and
+`tests/test_baccarat_table.py` exhibits a small deck on which that
+approximation is measurably wrong — it is a modelling assumption, not a
+rounding detail. Its magnitude for a full standard shoe is not quantified
+here; `TODO.md` records that gap as an accepted, open limitation.
 
 ![Casino table deal odds with the five-Bond collision probability.](../output/figures/{{FIGURE_BACCARAT}}){#fig:baccarat}
 

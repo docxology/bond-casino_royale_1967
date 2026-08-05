@@ -1,6 +1,6 @@
 # Introduction
 
-The 1967 film *Casino Royale* is not one Bond but many. Sir James Bond
+The 1967 film *Casino Royale* [@casinoroyale1967film] is not one Bond but many. Sir James Bond
 (played by David Niven) is recalled from retirement; the would-be successor
 is a baccarat prodigy (Peter Sellers as Evelyn Tremble); a Soviet defector
 (Ursula Andress as Vesper Lynd) doubles as a double-0; and James Bond's
@@ -24,8 +24,8 @@ Python module with no mocks and verified by real computation:
 - **Spoof protocol analysis** (`spoof_analyzer.py`) — automatic measurement of
   how far a satirical ops doctrine (the film's standing orders) deviates from
   a sane protocol of {{CONFIG_DOCTRINE_RULES}} rules.
-- **Identity confusion** (`identity_confusion.py`) — information theory over
-  the shared codename: a routing confusion matrix, entropy, mutual
+- **Identity confusion** (`identity_confusion.py`) — information theory
+  [@shannon1948communication] over the shared codename: a routing confusion matrix, entropy, mutual
   information, and Bayesian resolution of a dispatch sighting.
 - **The baccarat table** (`baccarat_table.py`) — exact chemin de fer deal odds
   by enumeration, plus the birthday-model probability that two of the

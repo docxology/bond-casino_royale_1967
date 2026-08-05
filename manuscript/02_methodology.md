@@ -45,7 +45,11 @@ SMERSH headquarters.
 lexicographic maximum of `(priority, agent_id)` per task — highest priority
 wins, and an exact tie goes to the greatest agent id, which makes the choice a
 pure function of the assignment *set* rather than of its ordering — and
-retires the overlap victims. Applied to the canonical farce it keeps
+retires every other agent on that task. Those retired agents are exactly the
+`overlap_victims` the analysis reports: both are derived from one shared
+winner function, and `tests/test_coordination_farce.py` asserts the two
+mappings are equal rather than merely the same size. Applied to the canonical
+farce it keeps
 {{RESULT_DEDUP_KEPT}} assignments and drops {{RESULT_DEDUP_DROPPED}},
 eliminating every overlap and every duplicate-agent conflict. Only one
 irreducible clash remains: a single agent must still win the baccarat
@@ -131,17 +135,27 @@ feature at all, because it is identical for every agent; this is exactly why
 the routing signal is so weak.
 
 **Entropy / mutual information.** With a uniform prior over the five Bonds,
-the model computes four quantities in bits:
+the model computes these quantities, all in bits
+[@shannon1948communication; @cover2006elements]:
 
 - `H(intended)` — Shannon entropy of the intended identity
   ({{RESULT_IDENTITY_PRIOR_ENTROPY}} bits for a uniform roster);
-- `H(routed | intended)` — the conditional entropy, reported as the
-  **identity ambiguity** of {{RESULT_IDENTITY_AMBIGUITY}} bits: what a
-  dispatch loses because the centre cannot tell the Bonds apart;
+- `H(routed)` — entropy of the marginal routing distribution
+  ({{RESULT_IDENTITY_ROUTING_ENTROPY}} bits);
+- `H(routed | intended)` — the forward conditional entropy, reported as the
+  **dispatch ambiguity** of {{RESULT_IDENTITY_AMBIGUITY}} bits: given the Bond
+  an order was meant for, this much uncertainty remains about where it lands;
 - `I = H(routed) - H(routed | intended)` — the mutual information
   ({{RESULT_IDENTITY_MI}} bits actually recovered by observing the routing);
-- `NMI = I / max(H(intended), H(routed))` — the same quantity normalized to
-  `[0, 1]`, where `0` means routing is independent of intent.
+- `H(intended | routed) = H(intended) - I` — the *reverse* conditional
+  entropy ({{RESULT_IDENTITY_RESIDUAL}} bits), what remains unknown about the
+  intended Bond once the routing has been seen. `residual_identity_entropy`
+  computes it separately precisely because it is not the same number as the
+  dispatch ambiguity, and swapping the two is the arithmetic error the results
+  section calls out;
+- `NMI = I / max(H(intended), H(routed))` — the mutual information normalized
+  to `[0, 1]` [@strehl2002cluster], where `0` means routing is independent of
+  intent.
 
 Because all five agents share one codename, the *codename* itself carries `0`
 bits: the shared name is pure identity loss, and only the clearance and
@@ -176,12 +190,24 @@ no-replacement marginal distribution of a two-card hand total from the actual
 deck; `hand_collision_probability` then applies the birthday bound — the
 elementary symmetric polynomial `n! * e_n(p_0..p_9)` — to answer: across
 {{CONFIG_TABLE_BONDS}} Bonds at the table, what is the probability at least
-two are dealt the same hand total? The answer is {{RESULT_TABLE_COLLISION}}.
+two are dealt the same hand total? Under the documented
+i.i.d.-across-hands approximation the answer is {{RESULT_TABLE_COLLISION}}.
+
+That approximation is the model's one inexact step and is stated rather than
+hidden. The marginal for a *single* hand is exact and without replacement, but
+the birthday product treats the {{CONFIG_TABLE_BONDS}} hands as independent
+draws from that marginal, whereas a real deal removes each dealt card from the
+shoe and so correlates the hands. `test_iid_approximation_is_not_exact` in
+`tests/test_baccarat_table.py` brute-forces every deal of a small deck and
+shows the two values disagree, so the approximation is documented by a failing
+comparison rather than asserted. The exact figure for a 52-card shoe and five
+hands is not computed here.
 
 ## 6. The escalation-ladder model
 
 `src/casino_royale_1967/escalation_ladder.py` models doctrine as an absorbing
-Markov chain (Kemeny-Snell analysis, exact numpy linear algebra).
+Markov chain (Kemeny-Snell analysis [@kemeny1960finite], exact numpy linear
+algebra).
 
 The {{CONFIG_LADDER_STATES}}-state ladder
 `quiet → rumour → scandal → spectacle → catastrophe` has `catastrophe`

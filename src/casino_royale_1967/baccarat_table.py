@@ -15,7 +15,8 @@ Bond shows up. This module models the game with real mathematics:
   *exact* (no-replacement) marginal distribution of a two-card hand total,
   the birthday-model probability that at least two of the *n* Bonds at the
   table are dealt the same hand total. The canonical table seats all five
-  Bonds.
+  Bonds. This one is **approximate**: the hands are combined as if
+  independent, while a real deal draws them all from one shrinking shoe.
 
 ``card_value`` maps 10/J/Q/K to 0, so a shoe is a value-count composition
 ``{0: 16, 1: 4, ..., 9: 4}`` for a standard 52-card deck.
@@ -323,6 +324,14 @@ def hand_collision_probability(
     probabilities: tuple[float, ...] | None = None,
 ) -> float:
     """Probability at least two of ``n_hands`` Bonds share a hand total.
+
+    Inherits the i.i.d.-across-hands approximation of
+    :func:`distinct_total_probability`: each hand's total is drawn from the
+    exact no-replacement single-hand marginal, but the hands are combined as
+    independent, whereas a real deal depletes one shared shoe. The returned
+    value is therefore approximate, and
+    ``tests/test_baccarat_table.py::...::test_iid_approximation_is_not_exact``
+    exhibits a deck on which the gap is measurable.
 
     Args:
         n_hands: Bonds seated at the table.

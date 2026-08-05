@@ -1,6 +1,7 @@
 # Casino Royale (1967) — FIVE 00s · PROJECT BOND film package
-# Phase-2 conversion: multi-agent coordination-failure model, dispatch-chaos
-# simulation, and spoof protocol analyzer for the 1967 Casino Royale farce.
+# Six domain modules for the 1967 Casino Royale farce: coordination_farce,
+# dispatch_chaos, spoof_analyzer, identity_confusion, baccarat_table and
+# escalation_ladder, adapted to the frozen bond_api protocol by mission.py.
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -10,7 +11,7 @@ build-backend = "setuptools.build_meta"
 name = "casino_royale_1967"
 version = "0.1.0"
 license = {text = "MIT"}
-description = "Casino Royale (1967) — FIVE 00s mission software: coordination-failure model, dispatch-chaos simulation, spoof protocol analyzer"
+description = "Casino Royale (1967) — FIVE 00s mission software: coordination-failure model, dispatch-chaos simulation, spoof protocol analyzer, identity-confusion model, baccarat table model, escalation ladder"
 authors = [
     {name = "Daniel Ari Friedman", email = "daniel@activeinference.institute"}
 ]

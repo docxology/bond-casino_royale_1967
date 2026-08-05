@@ -8,6 +8,8 @@ reproduces the canonical published baccarat odds.
 
 from __future__ import annotations
 
+from itertools import permutations
+
 import pytest
 
 from casino_royale_1967.baccarat_table import (
@@ -221,8 +223,46 @@ class TestHandDistributionAndCollision:
         assert sum(probabilities) == pytest.approx(1.0)
 
     def test_canonical_collision_probability(self) -> None:
+        """The published five-Bond figure, under the i.i.d.-across-hands model.
+
+        This pins the approximation's value, not a no-replacement truth — see
+        :meth:`test_iid_approximation_is_not_exact`.
+        """
         collision = hand_collision_probability(CANONICAL_TABLE_BONDS)
         assert collision == pytest.approx(0.704017, abs=1e-4)
+
+    def test_iid_approximation_is_not_exact(self) -> None:
+        """The across-hands independence assumption is real and measurable.
+
+        ``distinct_total_probability`` multiplies single-hand marginals as if
+        the hands were independent draws. A real deal removes each dealt card
+        from the shoe, so the hands are correlated. On a deck small enough to
+        enumerate exhaustively (two each of values 0, 1, 2) the exact
+        without-replacement answer and the approximation differ by about four
+        percentage points.
+
+        The manuscript claims that gap exists; this test is the evidence. If a
+        future implementation ever became exact, the ``!=`` assertion here goes
+        red and the manuscript's caveat must be revisited.
+        """
+        deck = {0: 2, 1: 2, 2: 2}
+        cards = [value for value, count in deck.items() for _ in range(count)]
+
+        deals = 0
+        distinct = 0
+        for draw in permutations(range(len(cards)), 4):
+            first = (cards[draw[0]] + cards[draw[1]]) % 10
+            second = (cards[draw[2]] + cards[draw[3]]) % 10
+            deals += 1
+            if first != second:
+                distinct += 1
+        exact_distinct = distinct / deals
+
+        approximate_distinct = distinct_total_probability(2, hand_total_probabilities(deck))
+
+        assert exact_distinct == pytest.approx(7 / 9)
+        assert approximate_distinct != pytest.approx(exact_distinct, abs=1e-3)
+        assert abs(exact_distinct - approximate_distinct) == pytest.approx(0.04, abs=1e-6)
 
     def test_collision_grows_with_hands(self) -> None:
         probabilities = hand_total_probabilities()
