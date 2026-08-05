@@ -127,4 +127,4 @@ uv run python scripts/z_generate_manuscript_variables.py  # tokens + figures + r
 
 See [docs/README.md](docs/README.md) for the documentation index,
 [AGENTS.md](AGENTS.md) for the full package spec, and [TODO.md](TODO.md) for
-remaining work and integration points.
+open work, accepted limitations, and the verification gate.
