@@ -51,12 +51,7 @@ def _brute_force_with_replacement(
         for b1 in VALUES:
             for p2 in VALUES:
                 for b2 in VALUES:
-                    opening = (
-                        probability[p1]
-                        * probability[b1]
-                        * probability[p2]
-                        * probability[b2]
-                    )
+                    opening = probability[p1] * probability[b1] * probability[p2] * probability[b2]
                     p_total = (p1 + p2) % 10
                     b_total = (b1 + b2) % 10
                     if is_natural(p_total) or is_natural(b_total):
@@ -134,6 +129,39 @@ class TestHandRules:
         assert banker_should_draw(5, None)
         assert not banker_should_draw(6, None)
 
+    def test_banker_table_is_exhaustive_over_the_full_domain(self) -> None:
+        """Every (banker_total, player_third) pair is decided by a real rule.
+
+        The function previously ended in an unreachable ``return False``
+        fallback. This sweep pins the whole domain against the published
+        chemin de fer banque table, so removing that dead branch cannot
+        silently change a decision.
+        """
+        # Published banker draw table: banker total -> player third cards that
+        # make the banker draw (Ethier 2010; Wizard of Odds).
+        expected_draw_cards: dict[int, set[int]] = {
+            0: set(range(10)),
+            1: set(range(10)),
+            2: set(range(10)),
+            3: set(range(10)) - {8},
+            4: {2, 3, 4, 5, 6, 7},
+            5: {4, 5, 6, 7},
+            6: {6, 7},
+            7: set(),
+            8: set(),
+            9: set(),
+        }
+        for banker_total in range(10):
+            for player_third in range(10):
+                assert banker_should_draw(banker_total, player_third) == (
+                    player_third in expected_draw_cards[banker_total]
+                ), f"banker {banker_total} vs player third {player_third}"
+
+    def test_banker_stand_rules_when_player_stood_are_exhaustive(self) -> None:
+        """The ``player_third=None`` path: banker draws on 0-5, stands on 6-9."""
+        for banker_total in range(10):
+            assert banker_should_draw(banker_total, None) == (banker_total <= 5)
+
 
 class TestDealOdds:
     """Deal probabilities reproduce the canonical published baccarat odds."""
@@ -146,9 +174,7 @@ class TestDealOdds:
 
     def test_probabilities_sum_to_one(self) -> None:
         outcome = deal_outcome_probabilities()
-        total = (
-            outcome.player_probability + outcome.banker_probability + outcome.tie_probability
-        )
+        total = outcome.player_probability + outcome.banker_probability + outcome.tie_probability
         assert total == pytest.approx(1.0)
 
     def test_banker_advantage(self) -> None:

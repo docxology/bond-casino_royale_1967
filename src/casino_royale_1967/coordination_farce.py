@@ -237,7 +237,8 @@ def analyze_assignments(
         A frozen :class:`CoordinationReport`.
 
     Raises:
-        ValueError: if any assignment references an unknown agent or task.
+        ValueError: if any assignment references an unknown agent or task, or
+            if a conflict-graph entry does not name exactly two tasks.
     """
     _validate_known_ids(assignments)
 
@@ -255,13 +256,17 @@ def analyze_assignments(
             # The victims: every agent beyond the first, in stable order.
             overlap_victims[task_id] = tuple(distinct[1:])
 
-    conflict_pairs = conflict_graph
     conflict_count = 0
-    for task_a, task_b in sorted(tuple(sorted(pair)) for pair in conflict_pairs):
+    for pair in sorted(tuple(sorted(p)) for p in conflict_graph):
+        if len(pair) != 2:
+            raise ValueError(f"conflict graph entry {pair!r} must name exactly two tasks")
+        task_a, task_b = pair
         agents_a = set(per_task.get(task_a, ()))
         agents_b = set(per_task.get(task_b, ()))
-        # Pairs of distinct agents on the two conflicting tasks.
-        conflict_count += len(agents_a) * len(agents_b)
+        # Pairs of *distinct* agents across the two conflicting tasks. One
+        # agent holding both sides of a conflict is a single-agent scheduling
+        # problem, not an inter-agent conflict, so it must not be counted.
+        conflict_count += sum(1 for a in agents_a for b in agents_b if a != b)
 
     clearance_violations = tuple(
         assignment
@@ -297,16 +302,21 @@ def deduplicate_assignments(
 ) -> DedupResult:
     """Keep the highest-priority assignment per task; retire the rest.
 
-    The farce's antidote: one agent per task, chosen by (priority, then
-    lexicographic agent_id for deterministic tie-breaks). Retired assignments
-    are the overlap victims — the Bonds who showed up to a party already
-    attended.
+    The farce's antidote: one agent per task, chosen by the lexicographic
+    maximum of ``(priority, agent_id)`` — highest priority wins, and an exact
+    tie is broken by the *greatest* agent id, which makes the choice a pure
+    function of the input set regardless of assignment order. Retired
+    assignments are the overlap victims — the Bonds who showed up to a party
+    already attended.
 
     Args:
         assignments: the assignment set (unknown ids raise ``ValueError``).
 
     Returns:
         A frozen :class:`DedupResult` with kept and dropped assignments.
+
+    Raises:
+        ValueError: if any assignment references an unknown agent or task.
     """
     _validate_known_ids(assignments)
 

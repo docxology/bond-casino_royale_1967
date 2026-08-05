@@ -12,7 +12,8 @@ tests six concepts drawn from the film's organizational failure:
    coordination loss of **{{RESULT_COORDINATION_LOSS}}** from
    {{RESULT_OVERLAP_COUNT}} overlaps and {{RESULT_CONFLICT_COUNT}} conflicts.
 2. **Dispatch-chaos simulation** (`dispatch_chaos.py`): a tick-based dispatch
-   centre issues {{RESULT_ORDERS}} orders and enforces five protocol rules;
+   centre issues {{RESULT_ORDERS}} orders and enforces
+   {{CONFIG_PROTOCOL_RULES}} protocol rules;
    {{RESULT_DISPATCHED}} dispatch successfully, {{RESULT_REJECTED}} are
    rejected, for a chaos index of **{{RESULT_CHAOS_INDEX}}**.
 3. **Spoof protocol analyzer** (`spoof_analyzer.py`): lexical scoring of

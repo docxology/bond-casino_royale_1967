@@ -1,95 +1,76 @@
 # TODO — Casino Royale (1967) · FIVE 00s
 
-Build & maintenance state for this PROJECT BOND film package.
+Remaining work for this PROJECT BOND film package. Completed build history is
+not tracked here — read the git log for that. This file is only what is *not*
+done.
 
-## Done (phase 4 — deep improvement)
+## Open work
 
-- [x] `src/casino_royale_1967/identity_confusion.py` — information-theoretic
-      identity model: feature-vector softmax confusion matrix, Shannon
-      entropy / conditional entropy / mutual information / NMI, and Bayesian
-      sighting resolution. Canonical: routing NMI 0.075, identity ambiguity
-      2.13 bits, sighting resolves to `bond_cooper` (confidence 0.613).
-- [x] `src/casino_royale_1967/baccarat_table.py` — exact baccarat
-      (chemin de fer) table: hand/draw rules, infinite-deck deal odds that
-      reproduce the canonical published figures (player 0.4461, banker
-      0.4584, tie 0.0954; Wizard of Odds / Ethier), and the five-Bond
-      hand-collision birthday metric (0.704).
-- [x] `src/casino_royale_1967/escalation_ladder.py` — doctrine as an
-      absorbing Markov chain: fundamental matrix `(I-Q)^{-1}`, expected
-      absorption times, spectral radius; the spoof doctrine reaches
-      catastrophe in 4.0 steps vs 56.0 under discipline (14.0x faster).
-- [x] Mission deepened inside (public shape unchanged): six objectives, four
-      assets, six plan steps, six results payloads, seven gadgets
-      (+ `identity`, `baccarat`, `escalation`); still a FROZEN
-      `MissionProvider` for bond-cli / coordinator / orchestrator.
-- [x] Manuscript variables: new `RESULT_IDENTITY_*`, `RESULT_BACCARAT_*`,
-      `RESULT_TABLE_*`, `RESULT_ESCALATION_*` and `CONFIG_TABLE_BONDS` tokens.
-- [x] Three new figures: `identity_confusion.png`, `baccarat_odds.png`,
-      `escalation_ladder.png` (six total).
-- [x] Tests: `test_identity_confusion.py`, `test_baccarat_table.py`,
-      `test_escalation_ladder.py` plus mission/vars/figures/scripts updates;
-      baccarat is cross-validated against an independent brute-force
-      reference. 182 tests, ~99.8% coverage on `src/`.
-- [x] Manuscript: methodology (sections 4-6), results (identity / table /
-      escalation), conclusion, abstract, setup, reproducibility, scope, and
-      `references.bib` (Shannon 1948, Kemeny-Snell 1960, Ethier 2010,
-      Wizard of Odds) updated.
+### 1. Bind `bond_utilities.mission_io.record_provenance_outcome`
 
-## Done (phase 2)
+`mission.py` currently carries `Provenance` inline and `scripts/mission.py`
+serialises the outcome itself. Once `bond_utilities.mission_io` is a converted
+dependency, delegate persistence to `record_provenance_outcome` so this
+package's outcome record matches the shared fleet schema.
 
-- [x] `src/casino_royale_1967/coordination_farce.py` — five-Bond
-      coordination-failure model: overlap/conflict/clearance detection,
-      weighted loss, single-agent deduplication. Real data (the five cast
-      members), deterministic.
-- [x] `src/casino_royale_1967/dispatch_chaos.py` — tick-based dispatch
-      simulation enforcing five protocol rules; deterministic chaos index and
-      success ratio; all five rule classes exercised by the canonical scenario.
-- [x] `src/casino_royale_1967/spoof_analyzer.py` — satirical ops-doctrine
-      analyzer: word-boundary marker scoring, rule-contradiction detection,
-      oxymoron flags, normalised spoof index (45.0 / 100 for the film doctrine).
-- [x] `src/casino_royale_1967/mission.py` — `MissionProvider` implementing the
-      FROZEN `bond_api` protocol (slug `casino_royale_1967`, codename
-      `FIVE 00s`); gadget registry (`roster`, `coordination`, `dispatch`,
-      `doctrine`); deterministic provenance (seed 7, sha256 input fingerprint,
-      `wall_time_s=0.0`).
-- [x] `src/casino_royale_1967/manuscript_variables.py` — live `{{TOKEN}}`
-      hydration from `manuscript/config.yaml` + the domain core; strict
-      resolved-manuscript tree writer.
-- [x] `src/casino_royale_1967/figures/plots.py` — three deterministic PNGs
-      (coordination load, dispatch timeline, spoof scores).
-- [x] `scripts/mission.py` — thin brief/recon/plan/execute/debrief/figures CLIs.
-- [x] `scripts/z_generate_manuscript_variables.py` — token map + figures +
-      resolved-manuscript injection.
-- [x] Tests: `test_coordination_farce.py`, `test_dispatch_chaos.py`,
-      `test_spoof_analyzer.py`, `test_mission.py` (protocol/registry/
-      serialization/discovery), `test_manuscript_variables.py` (live
-      cross-reference), `test_scripts_smoke.py`, `test_figures.py`. Zero mocks.
-- [x] Manuscript (`manuscript/`) with live tokens + 3 figures; docs, README,
-      AGENTS, metadata sidecars rewritten for the FIVE 00s identity.
-- [x] Gates green: pytest `--cov=src --cov-fail-under=90` (99%+), ruff
-      check+format, mypy, zero lineage strings, git status clean.
+- **Blocked on:** `bond-utilities` shipping `mission_io`.
+- **Acceptance:** outcome JSON written through the shared helper, with the same
+  `input_hash` and byte-identical deterministic JSON as today. A regression
+  test must compare the helper's output against the current serialisation.
 
-## Declared integration points
+### 2. Register with the fleet `MissionRegistry`
 
-- **bond-api (FROZEN, bound):** `pyproject.toml` declares a local path
-  dependency via `[tool.uv.sources] bond-api = { path = "..." }`. `mission.py`
-  is the only module importing `bond_api`; the pure domain core stays
-  importable if the path dep ever fails. Bound and verified in this phase.
-- **bond-utilities `mission_io.record_provenance_outcome` (not yet bound):**
-  the mission currently carries `Provenance` inline. Once
-  `bond_utilities.mission_io` is a converted dependency, delegate persistence
-  to `record_provenance_outcome` so the outcome record schema matches the
-  shared fleet contract. Acceptance: outcome JSON written through the shared
-  helper with the same `input_hash` and deterministic JSON.
-- **bond-coordinator / orchestrator discovery:** provider is discoverable by
-  slug (`load_provider('casino_royale_1967')`) and gadgets are on the module
-  registry; bind into fleet `MissionRegistry` when the coordinator ships.
+The provider is discoverable by slug (`load_provider('casino_royale_1967')`)
+and the gadgets sit on the module-level registry, but nothing binds this
+package into a fleet-wide registry yet.
 
-## Notes / known trade-offs
+- **Blocked on:** `bond-coordinator` shipping `MissionRegistry`.
+- **Acceptance:** the coordinator's reconcile lists this film with its seven
+  gadgets, and an orchestrator DAG can run its five stages without importing
+  anything from `src/` directly.
 
-- `dispatch_chaos` is a reject-model: a rejected order is dropped, never
-  requeued, so `mean_delay` is always 0. Documented as the chaotic-dispatch
-  premise; a queueing variant is future work.
-- `deduplicate_assignments` removes every overlap but leaves the single
-  irreducible baccarat-win-vs-burn clash (one conflict, loss equal to the
-  conflict weight) — by design, documented in the manuscript.
+### 3. A queueing variant of the dispatch model
+
+`dispatch_chaos.simulate_dispatch` is a **reject model**: a rejected order is
+dropped and never requeued, which is why `DispatchReport.mean_delay` is always
+`0.0`. That is a deliberate premise (chaotic dispatch loses orders), not a bug
+— but it means the `mean_delay` field carries no information today.
+
+- **Acceptance:** either a `simulate_dispatch(..., requeue=True)` variant that
+  produces a non-trivial delay distribution with its own tests, or removal of
+  `mean_delay` from the report if the reject model is declared final. Do not
+  leave a field that is structurally always zero.
+
+### 4. Sensitivity of the identity model to its free parameters
+
+`CONFUSION_TEMPERATURE` and the four `LIKELIHOOD_*` constants are documented,
+deterministic choices, but nothing measures how much the headline NMI and the
+Bayesian resolution depend on them.
+
+- **Acceptance:** a sweep over temperature and the likelihood table reported as
+  manuscript tokens, so the claim "routing carries almost no information" is
+  shown to be robust rather than an artefact of one parameter setting. Until
+  then the manuscript should not imply parameter-independence.
+
+## Known trade-offs (accepted, not work items)
+
+- **`deduplicate_assignments` leaves one irreducible conflict.** It removes
+  every overlap, but a single agent must still win the baccarat championship
+  while another burns the same table, so one conflict persists by design. This
+  is documented in the methodology, not a defect.
+- **The birthday metric assumes independence across hands.** Within a hand the
+  two-card distribution is exact and without replacement; *across* the seated
+  Bonds the collision bound treats hands as i.i.d. This approximation is stated
+  in the `distinct_total_probability` docstring and in the methodology.
+- **The spoof index is a satirical diagnostic.** It is a lexical measure over
+  declared marker tables, not a validated instrument for real organisational
+  doctrine. `07_scope_and_related_work.md` says so explicitly.
+
+## Integration points (stable, no action needed)
+
+- **bond-api (FROZEN, bound).** `pyproject.toml` declares the local path
+  dependency; `mission.py` is the only module importing `bond_api`, and
+  `tests/test_layer_contract.py` proves the domain core imports without it.
+- **Discovery contract.** `MissionProvider`, the five stage methods, `GADGETS`,
+  `GADGET_REGISTRY` and `register_gadgets` are frozen. Any change here breaks
+  `bond-cli`, the coordinator and the orchestrator across all 33 packages.

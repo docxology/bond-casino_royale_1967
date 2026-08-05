@@ -7,10 +7,15 @@ The canonical assignment set of {{RESULT_ASSIGNMENTS}} orders across the
 and {{RESULT_CONFLICT_COUNT}} conflicts. Three Bonds crowd the baccarat
 table; Vesper and Jimmy both infiltrate SMERSH headquarters; and Cooper's
 order to burn the baccarat table conflicts with the three agents assigned to
-win the championship on that same table. A single clearance violation is
-recorded (Jimmy, clearance 2, sent to an operation requiring 4).
+win the championship on that same table. Conflicts are counted between
+*distinct* agents only, so an operative holding both sides of a mutually
+exclusive pair is a scheduling problem rather than a conflict.
+{{RESULT_CLEARANCE_VIOLATIONS}} clearance violation is recorded:
+`{{RESULT_CLEARANCE_AGENT}}` ({{RESULT_CLEARANCE_ALIAS}}), clearance
+{{RESULT_CLEARANCE_LEVEL}}, sent to *{{RESULT_CLEARANCE_TASK}}* — an
+operation requiring clearance {{RESULT_CLEARANCE_REQUIRED}}.
 
-![Per-task agent load; bars above the dashed line are overlaps.](../output/figures/coordination_farce.png){#fig:coordination}
+![Per-task agent load; bars above the dashed line are overlaps.](../output/figures/{{FIGURE_COORDINATION}}){#fig:coordination}
 
 The weighted **coordination loss** is **{{RESULT_COORDINATION_LOSS}}**
 (weights {{CONFIG_OVERLAP_WEIGHT}} for overlap and
@@ -25,11 +30,20 @@ one conflict (loss {{CONFIG_CONFLICT_WEIGHT}}).
 The dispatch simulator issues {{RESULT_ORDERS}} orders; {{RESULT_DISPATCHED}}
 dispatch successfully and {{RESULT_REJECTED}} are rejected as protocol
 violations, for a success ratio of {{RESULT_SUCCESS_RATIO}} and a chaos index
-of **{{RESULT_CHAOS_INDEX}}**. All five protocol rules fire at least once:
-two exclusive-task rejections, two clearance failures, two double-bookings,
-one duplicate order, and one duplicate-codename rejection.
+of **{{RESULT_CHAOS_INDEX}}**. All {{CONFIG_PROTOCOL_RULES}} protocol rules
+fire at least once ({{RESULT_RULES_FIRED}} of {{CONFIG_PROTOCOL_RULES}}
+distinct rules triggered), so the scenario is a positive control for the whole
+rule set rather than a narrow subset:
 
-![Dispatch timeline: accepted orders vs protocol violations per tick.](../output/figures/dispatch_chaos.png){#fig:dispatch}
+| Protocol rule | Rejections |
+|---|---|
+| `exclusive_task` | {{RESULT_RULE_EXCLUSIVE_TASK}} |
+| `clearance` | {{RESULT_RULE_CLEARANCE}} |
+| `double_booking` | {{RESULT_RULE_DOUBLE_BOOKING}} |
+| `duplicate_order` | {{RESULT_RULE_DUPLICATE_ORDER}} |
+| `duplicate_codename` | {{RESULT_RULE_DUPLICATE_CODENAME}} |
+
+![Dispatch timeline: accepted orders vs protocol violations per tick.](../output/figures/{{FIGURE_DISPATCH}}){#fig:dispatch}
 
 The dominant failure mode is identity collapse: because all five agents share
 the codename *James Bond*, the dispatch centre repeatedly mistakes one agent
@@ -42,12 +56,13 @@ The film's standing orders of {{RESULT_DIRECTIVES}} directives score a
 score of {{RESULT_MEAN_SPOOF_SCORE}}. The worst offender is
 *"{{RESULT_WORST_DIRECTIVE}}"* — an inversion of the proportionality principle.
 
-![Per-directive spoof scores with the aggregate index in the title.](../output/figures/spoof_analyzer.png){#fig:spoof}
+![Per-directive spoof scores with the aggregate index in the title.](../output/figures/{{FIGURE_SPOOF}}){#fig:spoof}
 
 Contradiction detection attributes the scores across the sane rule surface
-(identity, single-agent discipline, command, discretion, force, fratricide),
-demonstrating that the analyzer exercises every rule rather than a narrow
-subset.
+(identity, single-agent discipline, command, discretion, force, fratricide):
+{{RESULT_DOCTRINE_RULES_HIT}} of the {{CONFIG_DOCTRINE_RULES}} declared rules
+are contradicted at least once, so the analyzer exercises every rule rather
+than a narrow subset.
 
 ## Identity confusion
 
@@ -56,11 +71,14 @@ measured in bits. Routing carries only
 **{{RESULT_IDENTITY_NMI}} normalized mutual information** (a near-zero value:
 the observed routing reveals almost nothing about which physical Bond was
 intended), while each dispatch loses **{{RESULT_IDENTITY_AMBIGUITY}} bits** of
-identity. A Bayesian sighting (jurisdiction match + clearance sufficiency) at
+identity. In absolute terms the intended identity carries
+{{RESULT_IDENTITY_PRIOR_ENTROPY}} bits and routing recovers only
+{{RESULT_IDENTITY_MI}} bits of it. A Bayesian sighting
+(jurisdiction match + clearance sufficiency) at
 the SMERSH operation resolves to *{{RESULT_IDENTITY_RESOLUTION}}* with
 posterior confidence {{RESULT_IDENTITY_CONFIDENCE}}.
 
-![Routing confusion matrix across the five Bonds.](../output/figures/identity_confusion.png){#fig:identity}
+![Routing confusion matrix across the five Bonds.](../output/figures/{{FIGURE_IDENTITY}}){#fig:identity}
 
 ## The casino table
 
@@ -72,15 +90,25 @@ farce lives at the table itself: with all {{CONFIG_TABLE_BONDS}} Bonds seated,
 the probability that at least two are dealt the same hand total is
 **{{RESULT_TABLE_COLLISION}}** — a hand-collision farce more likely than not.
 
-![Casino table deal odds with the five-Bond collision probability.](../output/figures/baccarat_odds.png){#fig:baccarat}
+![Casino table deal odds with the five-Bond collision probability.](../output/figures/{{FIGURE_BACCARAT}}){#fig:baccarat}
 
 ## Escalation ladder
 
-Modelled as an absorbing Markov chain over
+Modelled as an absorbing Markov chain over the
+{{CONFIG_LADDER_STATES}}-state ladder
 `quiet → rumour → scandal → spectacle → catastrophe`, the spoof doctrine
 reaches catastrophe in **{{RESULT_ESCALATION_SPOOF}} expected steps**, while a
 disciplined doctrine takes {{RESULT_ESCALATION_SANCTIONED}} — the farce
 escalates **{{RESULT_ESCALATION_ACCELERATION}}× faster**.
 
-![Expected steps to catastrophe per state, by doctrine.](../output/figures/escalation_ladder.png){#fig:escalation}
+Absorption is certain rather than assumed: the transient block of the spoof
+doctrine has spectral radius {{RESULT_ESCALATION_SPECTRAL}} (strictly below
+one), and the absorption probability into
+*{{RESULT_ESCALATION_ABSORBING_STATE}}* from `quiet` is
+{{RESULT_ESCALATION_ABSORPTION}}. The absorbing set is derived from the
+transition matrix itself — a row with a unit diagonal and no outflow — never
+from a state's name, so relabelling or reordering the ladder cannot change the
+analysis.
+
+![Expected steps to catastrophe per state, by doctrine.](../output/figures/{{FIGURE_ESCALATION}}){#fig:escalation}
 

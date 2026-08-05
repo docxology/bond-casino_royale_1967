@@ -50,6 +50,10 @@ LADDER_STATES: tuple[str, ...] = (
     "spectacle",
     "catastrophe",
 )
+
+#: Name of the absorbing state of :data:`LADDER_STATES`. Descriptive only —
+#: the analysis derives the absorbing set from the transition matrix itself
+#: (see :func:`_validate_transitions`), so a caller may supply any state names.
 ABSORBING_STATE = "catastrophe"
 
 #: Transition matrix under the film's spoof doctrine (row-stochastic).
@@ -72,18 +76,24 @@ SANCTIONED_DOCTRINE_TRANSITIONS: tuple[tuple[float, ...], ...] = (
 
 
 def _validate_transitions(transitions: tuple[tuple[float, ...], ...], states: tuple[str, ...]) -> tuple[int, ...]:
-    """Validate a row-stochastic square matrix with one absorbing row.
+    """Validate a row-stochastic square matrix with at least one absorbing row.
+
+    A row ``i`` is *absorbing* when ``P[i, i] == 1`` and every off-diagonal
+    entry of that row is zero. The absorbing set is derived from the matrix
+    itself, never from a state's name, so validation and analysis can never
+    disagree about which states are absorbing.
 
     Args:
         transitions: the candidate transition matrix.
         states: the state names (its length must match the matrix size).
 
     Returns:
-        The index of the absorbing state.
+        The indices of every absorbing state, ascending.
 
     Raises:
         ValueError: if the matrix is not square/row-stochastic, does not
-            match the state count, or has no absorbing row.
+            match the state count, has no absorbing row, or has no transient
+            state left to analyse.
     """
     size = len(states)
     if len(transitions) != size:
@@ -100,7 +110,14 @@ def _validate_transitions(transitions: tuple[tuple[float, ...], ...], states: tu
             absorbing_rows.append(row_index)
     if not absorbing_rows:
         raise ValueError("transitions must contain at least one absorbing state")
+    if len(absorbing_rows) == size:
+        raise ValueError("transitions must contain at least one transient state")
     return tuple(absorbing_rows)
+
+
+def _transient_indices(absorbing: tuple[int, ...], size: int) -> list[int]:
+    """Indices of the transient states — every index not in ``absorbing``."""
+    return [index for index in range(size) if index not in absorbing]
 
 
 def fundamental_matrix(
@@ -117,9 +134,13 @@ def fundamental_matrix(
 
     Returns:
         ``(k, k)`` float matrix, ``k`` = number of transient states.
+
+    Raises:
+        ValueError: for an invalid transition matrix (see
+            :func:`_validate_transitions`).
     """
-    _validate_transitions(transitions, states)
-    transient = [i for i in range(len(states)) if states[i] != ABSORBING_STATE]
+    absorbing = _validate_transitions(transitions, states)
+    transient = _transient_indices(absorbing, len(states))
     matrix = np.asarray(transitions, dtype=float)
     q = matrix[np.ix_(transient, transient)]
     return np.linalg.inv(np.eye(len(transient)) - q)
@@ -173,23 +194,25 @@ def escalation_analysis(
         ValueError: for an invalid transition matrix (see
             :func:`_validate_transitions`).
     """
-    _validate_transitions(transitions, states)
-    transient = [i for i in range(len(states)) if states[i] != ABSORBING_STATE]
+    absorbing = _validate_transitions(transitions, states)
+    transient = _transient_indices(absorbing, len(states))
     times = expected_absorption_times(transitions, states)
 
     matrix = np.asarray(transitions, dtype=float)
     q = matrix[np.ix_(transient, transient)]
-    eigenvalues = np.linalg.eigvals(q)
-    spectral_radius = float(max(abs(float(eigenvalue)) for eigenvalue in eigenvalues))
+    # eigvals returns a complex array in general; the spectral radius is the
+    # largest complex modulus (float() on a complex eigenvalue would raise).
+    spectral_radius = float(np.abs(np.linalg.eigvals(q)).max())
 
-    # Absorption probability from the first state: solve the standard system.
-    r = matrix[np.ix_(transient, [len(states) - 1])]
+    # Absorption probability from the first transient state, summed over every
+    # absorbing state: B = (I - Q)^{-1} R, standard Kemeny-Snell system.
+    r = matrix[np.ix_(transient, list(absorbing))]
     absorption = np.linalg.solve(np.eye(len(transient)) - q, r)
-    absorption_probability = float(absorption[0, 0])
+    absorption_probability = float(absorption[0].sum())
 
     return EscalationReport(
         states=states,
-        absorbing_state=ABSORBING_STATE,
+        absorbing_state=states[absorbing[0]],
         expected_absorption=times,
         absorption_probability=absorption_probability,
         spectral_radius_q=spectral_radius,
@@ -218,7 +241,10 @@ def compare_doctrines() -> DoctrineComparison:
     """
     spoof = escalation_analysis(SPOOF_DOCTRINE_TRANSITIONS)
     sanctioned = escalation_analysis(SANCTIONED_DOCTRINE_TRANSITIONS)
-    acceleration = sanctioned.escalation_index / spoof.escalation_index if spoof.escalation_index > 0.0 else 0.0
+    # No zero guard is needed: the fundamental matrix has N[i, i] >= 1, so an
+    # expected absorption time is always >= 1 step. A guard here would be a
+    # branch that can never fire.
+    acceleration = sanctioned.escalation_index / spoof.escalation_index
     return DoctrineComparison(
         spoof_index=spoof.escalation_index,
         sanctioned_index=sanctioned.escalation_index,

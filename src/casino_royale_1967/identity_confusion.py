@@ -6,8 +6,9 @@ with real information theory and Bayesian inference:
 
 * a **confusion matrix** over the five physical agents — the probability that
   an order intended for agent *i* is routed to agent *j*, built
-  deterministically as a softmax over agent-feature similarity (clearance +
-  jurisdiction one-hot over the task catalog);
+  deterministically as a softmax over agent-feature similarity (normalized
+  clearance + a one-hot over the roster's distinct jurisdictions, *not* over
+  the task catalog);
 * **information-theoretic metrics**: prior entropy of the intended identity,
   conditional entropy of routing given intent (the expected confusion per
   dispatch), marginal routing entropy, mutual information, and normalized
@@ -80,14 +81,19 @@ _JURISDICTIONS: tuple[str, ...] = tuple(sorted({agent.jurisdiction for agent in 
 
 
 def feature_vector(agent: Agent) -> np.ndarray:
-    """Deterministic 6-d feature vector: normalized clearance + jurisdiction one-hot.
+    """Deterministic feature vector: normalized clearance + jurisdiction one-hot.
+
+    The one-hot spans :data:`_JURISDICTIONS` — the sorted distinct
+    jurisdictions of :data:`AGENT_ROSTER` — so the vector has
+    ``1 + len(_JURISDICTIONS)`` entries (six for the canonical five-Bond
+    roster, whose jurisdictions are all distinct).
 
     Args:
         agent: a roster agent.
 
     Returns:
-        A float array of shape ``(6,)``: ``[clearance/5, one-hot over
-        jurisdictions]``.
+        A float array of shape ``(1 + len(_JURISDICTIONS),)``:
+        ``[clearance / 5, one-hot over roster jurisdictions]``.
     """
     one_hot = np.zeros(len(_JURISDICTIONS), dtype=float)
     one_hot[_JURISDICTIONS.index(agent.jurisdiction)] = 1.0
@@ -122,7 +128,7 @@ def build_confusion_matrix(
     scaled = scores / temperature
     shifted = scaled - scaled.max(axis=1, keepdims=True)
     exp = np.exp(shifted)
-    return (exp / exp.sum(axis=1, keepdims=True))  # type: ignore[no-any-return]
+    return exp / exp.sum(axis=1, keepdims=True)  # type: ignore[no-any-return]
 
 
 def entropy(probabilities: tuple[float, ...]) -> float:

@@ -6,7 +6,7 @@
 
 paper:
   title: "Casino Royale: FIVE 00s — Special-Agent Mission Software"
-  subtitle: "Deterministic Modelling of Multi-Agent Coordination Failure, Dispatch Chaos, and Spoof Ops Doctrine"
+  subtitle: "Deterministic Modelling of Multi-Agent Coordination Failure, Dispatch Chaos, Spoof Ops Doctrine, Identity Confusion, Baccarat Odds, and Doctrine Escalation"
   version: "0.1.0"
   date: "2026-08-04"
 
@@ -45,6 +45,12 @@ keywords:
   - "agent dispatch simulation"
   - "protocol violations"
   - "satirical ops doctrine"
+  - "identity confusion"
+  - "mutual information"
+  - "Bayesian identity resolution"
+  - "baccarat odds"
+  - "birthday problem"
+  - "absorbing Markov chains"
   - "deterministic modelling"
   - "reproducible research"
 

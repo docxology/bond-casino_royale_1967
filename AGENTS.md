@@ -31,6 +31,7 @@ exposed through the FROZEN `bond_api` `MissionProvider` protocol.
 | Layer | Files | Rule |
 |---|---|---|
 | Pure domain core | `src/casino_royale_1967/{coordination_farce,dispatch_chaos,spoof_analyzer,identity_confusion,baccarat_table,escalation_ladder}.py`, `src/casino_royale_1967/figures/` | stdlib + numpy/matplotlib only; **no** `infrastructure.*`, **no** `bond_api` imports; importable standalone |
+| Package init | `src/casino_royale_1967/__init__.py` | eager domain re-exports; adapter symbols resolved **lazily** via PEP 562 `__getattr__` so the core imports without `bond_api` |
 | Protocol adapter | `src/casino_royale_1967/mission.py` | the single module constructing FROZEN `bond_api` types |
 | Manuscript | `src/casino_royale_1967/manuscript_variables.py` | token hydration, strict resolved-tree writer |
 | Scripts | `scripts/mission.py`, `scripts/z_generate_manuscript_variables.py` | thin CLI wrappers (sys.path bootstrap + argv forwarding), `# noqa: E402` on bootstrap lines |
@@ -38,6 +39,11 @@ exposed through the FROZEN `bond_api` `MissionProvider` protocol.
 `mission.py` and the pure core communicate through plain dicts/dataclasses;
 nothing in `src` imports `infrastructure.*` at all
 (`manuscript/layer_contract.yaml` declares `allow_infrastructure_imports: []`).
+
+The layer contract is **executed, not asserted**: `tests/test_layer_contract.py`
+imports the whole domain core in a subprocess with `bond_api` blocked at the
+meta-path level, and carries a positive control proving `mission.py` fails
+under the same conditions — so the check cannot pass vacuously.
 
 ## Protocol binding (FROZEN bond-api)
 
@@ -51,8 +57,15 @@ nothing in `src` imports `infrastructure.*` at all
 - `src/casino_royale_1967/mission.py` exports `MissionProvider` at module top
   level with `film = "casino_royale_1967"`, implementing `brief()` /
   `recon()` / `plan()` / `execute()` / `debrief()` against the frozen
-  `bond_api` dataclasses, and registers gadgets (`roster`, `coordination`,
-  `dispatch`, `doctrine`) on the module-level `GADGET_REGISTRY`.
+  `bond_api` dataclasses, and registers seven gadgets (`roster`,
+  `coordination`, `dispatch`, `doctrine`, `identity`, `baccarat`,
+  `escalation`) on the module-level `GADGET_REGISTRY`, alongside the
+  `GADGETS` map and the `register_gadgets(registry=None)` hook.
+
+**This surface is FROZEN.** `bond-cli`, the coordinator's reconcile and the
+orchestrator consume these symbols across all 33 BOND packages. Deepen inside
+the stages — richer payloads, more findings, more plan steps, new gadget
+entries — never change a signature, the class name, or a registry symbol.
 
 ## Testing requirements
 
@@ -62,12 +75,21 @@ nothing in `src` imports `infrastructure.*` at all
   `test_escalation_ladder.py`.
 - `test_mission.py` — protocol conformance, deterministic outcome + registry
   + serialization round-trips + slug discovery against the real `bond_api`.
-- `test_manuscript_variables.py` — token map plus the **live cross-reference
-  gate** scanning `manuscript/[0-9]*.md` (numbered prose only; guide files
-  url `{{TOKEN}}` syntax legitimately).
+- `test_layer_contract.py` — subprocess import of the domain core with
+  `bond_api` blocked, its positive control against `mission.py`, a source scan
+  for forbidden imports, and the lazy adapter exports. A new domain module must
+  be added to its `DOMAIN_MODULES` tuple or the completeness check fails.
+- `test_manuscript_variables.py` — token map plus **three manuscript gates**
+  over `manuscript/[0-9]*.md` (numbered prose only; guide files use
+  `{{TOKEN}}` syntax legitimately): unknown tokens fail, generated-but-unused
+  tokens fail, and bare numerals in `03_results.md` / `04_conclusion.md` fail.
 - `test_scripts_smoke.py` — subprocess runs of the thin CLIs via
   `sys.executable` with `cwd=project_root`.
 - `test_figures.py` — deterministic PNG render + byte-idempotence.
+
+**Positive controls are mandatory for new gates.** Every contract check here
+ships with an input that must break it (see `docs/testing_philosophy.md`); a
+check that cannot fail reports safety it does not provide.
 
 ## Verification before done
 

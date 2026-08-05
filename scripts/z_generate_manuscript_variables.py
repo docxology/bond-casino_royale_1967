@@ -3,9 +3,12 @@
 
 Computes the ``{{TOKEN}}`` map from ``manuscript/config.yaml`` plus the live
 deterministic domain metrics (``src/.../manuscript_variables.py``), writes
-``output/data/manuscript_variables.json``, renders the three concept figures
+``output/data/manuscript_variables.json``, renders all six concept figures
 into ``output/figures/``, and resolves every ``{{TOKEN}}`` into
 ``output/manuscript/*.md`` for PDF rendering.
+
+Substitution is strict: an unresolvable token raises rather than leaving a
+marker in the rendered output.
 
 Exit codes:
     0   variables written and injected successfully

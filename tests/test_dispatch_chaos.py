@@ -15,8 +15,10 @@ from casino_royale_1967.dispatch_chaos import (
 class TestCanonicalScenario:
     """The canonical chaos scenario fires every protocol rule."""
 
-    ROSES = ["exclusive_task", "clearance", "double_booking", "duplicate_order",
-             "duplicate_codename"]
+    def test_default_scenario_is_the_canonical_order_stream(self) -> None:
+        """The no-argument call must analyse ``CHAOS_ORDERS`` itself."""
+        assert simulate_dispatch() == simulate_dispatch(CHAOS_ORDERS)
+        assert len(CHAOS_ORDERS) == 13
 
     def test_counts(self) -> None:
         report = simulate_dispatch()
@@ -31,14 +33,20 @@ class TestCanonicalScenario:
         assert report.chaos_index == pytest.approx(8 / 13)
 
     def test_every_rule_fires(self) -> None:
+        """Bind to ``PROTOCOL_RULES`` itself, not a hand-copied list.
+
+        This previously compared against a local duplicate of the rule names,
+        so adding a sixth rule to ``PROTOCOL_RULES`` would have left the test
+        green while the canonical scenario no longer exercised it.
+        """
         report = simulate_dispatch()
         fired = {v.rule for v in report.violations}
-        assert fired == set(self.ROSES)
+        assert fired == set(PROTOCOL_RULES)
+        assert len(PROTOCOL_RULES) == len(set(PROTOCOL_RULES)), "rule names must be unique"
 
     def test_rule_distribution(self) -> None:
         report = simulate_dispatch()
-        counts = {rule: sum(1 for v in report.violations if v.rule == rule)
-                  for rule in PROTOCOL_RULES}
+        counts = {rule: sum(1 for v in report.violations if v.rule == rule) for rule in PROTOCOL_RULES}
         assert counts["exclusive_task"] == 2
         assert counts["clearance"] == 2
         assert counts["double_booking"] == 2
@@ -47,9 +55,7 @@ class TestCanonicalScenario:
 
     def test_dispatched_orders(self) -> None:
         report = simulate_dispatch()
-        dispatched_ids = {
-            e.order_id for e in report.events if e.event_type == "dispatch"
-        }
+        dispatched_ids = {e.order_id for e in report.events if e.event_type == "dispatch"}
         assert dispatched_ids == {"o01", "o04", "o06", "o08", "o13"}
 
     def test_deterministic(self) -> None:

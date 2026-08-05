@@ -123,9 +123,9 @@ def banker_should_draw(banker_total: int, player_third: int | None = None) -> bo
         return player_third in (2, 3, 4, 5, 6, 7)
     if banker_total == 5:
         return player_third in (4, 5, 6, 7)
-    if banker_total == 6:
-        return player_third in (6, 7)
-    return False
+    # Only ``banker_total == 6`` can reach here: 0-2 and >=7 returned above and
+    # 3/4/5 are handled explicitly, so no unreachable fallback is needed.
+    return player_third in (6, 7)
 
 
 @dataclass(frozen=True)

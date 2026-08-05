@@ -68,9 +68,7 @@ class TestAnalyzeAssignments:
 
     def test_custom_weights_change_loss_but_not_counts(self) -> None:
         base = analyze_assignments(DEFAULT_ASSIGNMENTS)
-        heavy = analyze_assignments(
-            DEFAULT_ASSIGNMENTS, overlap_weight=5.0, conflict_weight=7.0
-        )
+        heavy = analyze_assignments(DEFAULT_ASSIGNMENTS, overlap_weight=5.0, conflict_weight=7.0)
         assert heavy.overlap_count == base.overlap_count
         assert heavy.conflict_count == base.conflict_count
         assert heavy.loss == 5.0 * 3 + 7.0 * 3
@@ -111,6 +109,47 @@ class TestAnalyzeAssignments:
         # Same agent duplicated: distinct set size is 1, so no overlap.
         assert report.overlap_count == 0
 
+    def test_one_agent_on_both_conflicting_tasks_is_not_a_conflict(self) -> None:
+        """A conflict is between *distinct* agents, per the documented model.
+
+        Regression guard: the count was ``len(a) * len(b)``, which paired an
+        agent with itself when one operative held both sides of a mutually
+        exclusive task pair. That is a single-agent scheduling problem, not an
+        inter-agent conflict.
+        """
+        from casino_royale_1967.coordination_farce import Assignment
+
+        report = analyze_assignments(
+            (
+                Assignment("bond_cooper", "baccarat", 2),
+                Assignment("bond_cooper", "burn_baccarat", 1),
+            )
+        )
+        assert report.conflict_count == 0
+        assert report.loss == 0.0
+
+    def test_shared_agent_only_removes_its_own_self_pair(self) -> None:
+        """With a shared agent plus a second, only the cross pair counts."""
+        from casino_royale_1967.coordination_farce import Assignment
+
+        report = analyze_assignments(
+            (
+                Assignment("bond_cooper", "baccarat", 2),
+                Assignment("bond_tremble", "baccarat", 3),
+                Assignment("bond_cooper", "burn_baccarat", 1),
+            )
+        )
+        # Pairs across {cooper, tremble} x {cooper}: only (tremble, cooper).
+        assert report.conflict_count == 1
+
+    def test_malformed_conflict_graph_entry_raises(self) -> None:
+        """A conflict-graph entry must name exactly two tasks."""
+        with pytest.raises(ValueError, match="exactly two tasks"):
+            analyze_assignments(
+                DEFAULT_ASSIGNMENTS,
+                conflict_graph=frozenset((frozenset(("baccarat",)),)),
+            )
+
 
 class TestDeduplicateAssignments:
     """Single-agent discipline removes every overlap."""
@@ -145,9 +184,7 @@ class TestDeduplicateAssignments:
         assert result.dropped_by_task["smersh_hq"] == ("bond_jimmy",)
 
     def test_deterministic_output(self) -> None:
-        assert deduplicate_assignments(DEFAULT_ASSIGNMENTS) == (
-            deduplicate_assignments(DEFAULT_ASSIGNMENTS)
-        )
+        assert deduplicate_assignments(DEFAULT_ASSIGNMENTS) == (deduplicate_assignments(DEFAULT_ASSIGNMENTS))
 
     def test_priority_tie_breaks_by_agent_id(self) -> None:
         from casino_royale_1967.coordination_farce import Assignment

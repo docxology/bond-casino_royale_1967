@@ -25,8 +25,11 @@ baccarat championship* conflicts with *burn the baccarat table*.
 
 - **Overlap count** — every extra distinct agent beyond the first on a task.
   A task with three Bonds contributes two overlaps.
-- **Conflict count** — every unordered pair of distinct agents assigned to a
-  conflicting task pair.
+- **Conflict count** — every pair of *distinct* agents drawn one from each
+  side of a conflicting task pair. A single operative assigned to both sides
+  contributes nothing: that is a single-agent scheduling problem, not an
+  inter-agent conflict. Each conflict-graph entry must name exactly two
+  tasks, and a malformed entry raises rather than being silently skipped.
 - **Clearance violations** — assignments where the agent's clearance is below
   the task's requirement (reported, not counted twice in the loss).
 - **Coordination loss** — a weighted sum
@@ -39,8 +42,10 @@ baccarat table, Cooper burning the same table, Vesper and Jimmy both at
 SMERSH headquarters.
 
 **Remedy** (`deduplicate_assignments`). Single-agent discipline keeps the
-highest-priority assignment per task (ties broken by lexicographic agent id)
-and retires the overlap victims. Applied to the canonical farce it keeps
+lexicographic maximum of `(priority, agent_id)` per task — highest priority
+wins, and an exact tie goes to the greatest agent id, which makes the choice a
+pure function of the assignment *set* rather than of its ordering — and
+retires the overlap victims. Applied to the canonical farce it keeps
 {{RESULT_DEDUP_KEPT}} assignments and drops {{RESULT_DEDUP_DROPPED}},
 eliminating every overlap and every duplicate-agent conflict. Only one
 irreducible clash remains: a single agent must still win the baccarat
@@ -59,7 +64,8 @@ priority first, ties broken by order id. State is deterministic: agents
 committed to a task persist across ticks (task occupancy), and agents
 committed to a task within the current tick are re-checked for double-booking.
 
-**Protocol rules.** Five rules are enforced per order, in this order:
+**Protocol rules.** {{CONFIG_PROTOCOL_RULES}} rules are enforced per order,
+in this order:
 
 1. `duplicate_order` — an order id issued twice is rejected;
 2. `exclusive_task` — an exclusive task may hold only one agent;
@@ -75,7 +81,8 @@ A rejected order is dropped, never requeued: chaotic dispatch loses orders.
 dispatched, and rejected counts, every `DispatchViolation` with the rule that
 fired, the success ratio, and a chaos index equal to
 `violations / total_orders`, normalised to `[0, 1]`. The canonical scenario
-issues {{RESULT_ORDERS}} orders across {{CONFIG_MAX_TICKS}} ticks.
+issues {{RESULT_ORDERS}} orders within a horizon of {{CONFIG_MAX_TICKS}}
+ticks (orders issued beyond the horizon are ignored).
 
 ## 3. The spoof protocol analyzer
 
@@ -83,7 +90,7 @@ issues {{RESULT_ORDERS}} orders across {{CONFIG_MAX_TICKS}} ticks.
 doctrine deviates from a sane protocol. It combines lexical marker scoring,
 rule-contradiction detection, and oxymoron detection.
 
-**Sane doctrine.** `REAL_OPS_RULES` lists six rules (classified identity,
+**Sane doctrine.** `REAL_OPS_RULES` lists {{CONFIG_DOCTRINE_RULES}} rules (classified identity,
 single point of command, covert discretion, proportional force, no
 fratricide, single agent per operation). The analyzer treats these as the
 ground truth the farce inverts.
@@ -113,22 +120,32 @@ standing orders comprise {{RESULT_DIRECTIVES}} directives.
 `src/casino_royale_1967/identity_confusion.py` quantifies the codename
 collapse with information theory and Bayesian inference.
 
-**Confusion matrix.** Each agent is represented by a feature vector
-(normalized clearance + a jurisdiction one-hot over the task catalog).
-Routing confusion `confusion[i][j]` — the probability an order intended for
-agent *i* is routed to agent *j* — is a row-softmax over pairwise feature
-similarity scaled by a temperature. The matrix is row-stochastic and
-deterministic.
+**Confusion matrix.** Each agent is represented by a feature vector: its
+clearance normalized to `[0, 1]`, concatenated with a one-hot over the
+roster's distinct jurisdictions (diplomacy, gambling, seduction, accounting,
+field ops). Routing confusion `confusion[i][j]` — the probability an order
+intended for agent *i* is routed to agent *j* — is a row-softmax over pairwise
+feature similarity `f_i · f_j` scaled by a temperature. The matrix is
+row-stochastic and deterministic. Note that the codename contributes no
+feature at all, because it is identical for every agent; this is exactly why
+the routing signal is so weak.
 
 **Entropy / mutual information.** With a uniform prior over the five Bonds,
-the model computes Shannon entropy of the intended identity
-`H(intended)` ({{RESULT_IDENTITY_NMI}}-related), the conditional entropy
-`H(routed | intended)` — its **identity ambiguity** of
-{{RESULT_IDENTITY_AMBIGUITY}} bits — the marginal routing entropy, the mutual
-information `I = H(routed) - H(routed|intended)`, and the normalized mutual
-information `NMI = I / max(H(intended), H(routed))`. Because all five agents
-share one codename, the *codename* itself carries `0` bits; the shared name
-is pure identity loss.
+the model computes four quantities in bits:
+
+- `H(intended)` — Shannon entropy of the intended identity
+  ({{RESULT_IDENTITY_PRIOR_ENTROPY}} bits for a uniform roster);
+- `H(routed | intended)` — the conditional entropy, reported as the
+  **identity ambiguity** of {{RESULT_IDENTITY_AMBIGUITY}} bits: what a
+  dispatch loses because the centre cannot tell the Bonds apart;
+- `I = H(routed) - H(routed | intended)` — the mutual information
+  ({{RESULT_IDENTITY_MI}} bits actually recovered by observing the routing);
+- `NMI = I / max(H(intended), H(routed))` — the same quantity normalized to
+  `[0, 1]`, where `0` means routing is independent of intent.
+
+Because all five agents share one codename, the *codename* itself carries `0`
+bits: the shared name is pure identity loss, and only the clearance and
+jurisdiction features carry any signal at all.
 
 **Bayesian resolution.** Given a dispatch sighting's evidence — whether the
 presented jurisdiction matched the task's and whether clearance was
@@ -166,16 +183,27 @@ two are dealt the same hand total? The answer is {{RESULT_TABLE_COLLISION}}.
 `src/casino_royale_1967/escalation_ladder.py` models doctrine as an absorbing
 Markov chain (Kemeny-Snell analysis, exact numpy linear algebra).
 
-The ladder `quiet → rumour → scandal → spectacle → catastrophe` has
-`catastrophe` absorbing. A doctrine is a row-stochastic transition matrix
-(`SPOOF_DOCTRINE_TRANSITIONS`, `SANCTIONED_DOCTRINE_TRANSITIONS`). The
-analysis computes:
+The {{CONFIG_LADDER_STATES}}-state ladder
+`quiet → rumour → scandal → spectacle → catastrophe` has `catastrophe`
+absorbing. A doctrine is a row-stochastic transition matrix
+(`SPOOF_DOCTRINE_TRANSITIONS`, `SANCTIONED_DOCTRINE_TRANSITIONS`).
+
+**Deriving the absorbing set.** Validation rejects any matrix that is not
+square, not row-stochastic, or has a negative entry, and then identifies the
+absorbing states *from the matrix itself*: a row `i` with `P[i, i] = 1` and no
+off-diagonal outflow. A matrix with no absorbing row, or with no transient row
+left, is rejected. Nothing keys off a state's *name*, so a caller may supply
+any state labels in any order and get the same physics — a property pinned by
+a reversed-ladder regression test.
+
+The analysis then computes:
 
 - the **fundamental matrix** `N = (I - Q)^{-1}` over the transient states;
 - the **expected absorption time** `t = N @ 1` from each state — the expected
   steps to catastrophe;
-- a **spectral radius** of `Q` below 1 (guaranteeing absorption) and the
-  absorption probability (~1.0).
+- the **spectral radius** of `Q` as the largest complex modulus of its
+  eigenvalues (a value below 1 guarantees absorption);
+- the **absorption probability** `B = N R`, summed over every absorbing state.
 
 `compare_doctrines` reports the **escalation index** (expected steps from
 `quiet`) under each doctrine and the acceleration factor

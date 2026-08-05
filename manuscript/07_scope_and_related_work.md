@@ -28,7 +28,9 @@ The work sits at the intersection of several research threads:
 - **Information theory of identity.** The identity-confusion model applies
   Shannon's entropy and mutual information to quantify how much identity a
   shared codename destroys; the Bayesian resolution is a standard posterior
-  update over the roster (Shannon 1948).
+  update over the roster (Shannon 1948; Cover & Thomas 2006). The
+  normalization of mutual information by the larger marginal entropy follows
+  the convention of Strehl & Ghosh (2002).
 - **Deterministic simulation and protocol verification.** The dispatch
   simulator's rule-checker mirrors property-based protocol enforcement: each
   order is checked against a fixed rule set, and violations are recorded as

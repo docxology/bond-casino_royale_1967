@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import pytest
 
@@ -21,9 +23,7 @@ class TestValidation:
 
     def test_wrong_row_count_raises(self) -> None:
         with pytest.raises(ValueError, match="rows"):
-            escalation_analysis(
-                ((0.5, 0.5), (0.5, 0.5))
-            )
+            escalation_analysis(((0.5, 0.5), (0.5, 0.5)))
 
     def test_wrong_column_count_raises(self) -> None:
         with pytest.raises(ValueError, match="entries"):
@@ -54,6 +54,88 @@ class TestValidation:
         transitions = tuple(tuple(row) for row in bad)
         with pytest.raises(ValueError, match="negative"):
             escalation_analysis(transitions)
+
+    def test_all_absorbing_raises(self) -> None:
+        """An all-absorbing chain leaves no transient state to analyse."""
+        size = len(LADDER_STATES)
+        identity = tuple(tuple(1.0 if i == j else 0.0 for j in range(size)) for i in range(size))
+        with pytest.raises(ValueError, match="transient"):
+            escalation_analysis(identity)
+
+
+class TestAbsorbingSetIsDerivedFromTheMatrix:
+    """The absorbing set comes from the matrix, never from a state's name.
+
+    Regression guard: an earlier version keyed the transient split off the
+    literal name ``"catastrophe"`` while validating against the matrix, so a
+    ladder whose absorbing state sat anywhere else produced a singular
+    ``(I - Q)`` or silently analysed the wrong column.
+    """
+
+    #: Same ladder, reversed, so the absorbing state is index 0, not the last.
+    REVERSED_LADDER: tuple[str, ...] = ("collapse", "spectacle", "scandal", "rumour", "quiet")
+    REVERSED_TRANSITIONS: tuple[tuple[float, ...], ...] = (
+        (1.00, 0.00, 0.00, 0.00, 0.00),
+        (0.60, 0.40, 0.00, 0.00, 0.00),
+        (0.35, 0.45, 0.20, 0.00, 0.00),
+        (0.10, 0.25, 0.40, 0.25, 0.00),
+        (0.02, 0.08, 0.20, 0.40, 0.30),
+    )
+
+    def test_absorbing_state_is_reported_by_name(self) -> None:
+        report = escalation_analysis(self.REVERSED_TRANSITIONS, self.REVERSED_LADDER)
+        assert report.absorbing_state == "collapse"
+
+    def test_reversed_ladder_matches_the_canonical_one(self) -> None:
+        """Relabelling and reordering must not change the physics."""
+        report = escalation_analysis(self.REVERSED_TRANSITIONS, self.REVERSED_LADDER)
+        canonical = escalation_analysis(SPOOF_DOCTRINE_TRANSITIONS)
+        # transient states are (spectacle, scandal, rumour, quiet) here vs
+        # (quiet, rumour, scandal, spectacle) canonically -> reverse to compare.
+        assert report.expected_absorption[::-1] == pytest.approx(canonical.expected_absorption)
+        assert report.absorption_probability == pytest.approx(1.0)
+
+    def test_multiple_absorbing_states_sum_to_certain_absorption(self) -> None:
+        """Two absorbing states: total absorption probability is still 1."""
+        states = ("quiet", "scandal", "exposure", "catastrophe")
+        transitions = (
+            (0.50, 0.30, 0.10, 0.10),
+            (0.20, 0.40, 0.15, 0.25),
+            (0.00, 0.00, 1.00, 0.00),
+            (0.00, 0.00, 0.00, 1.00),
+        )
+        report = escalation_analysis(transitions, states)
+        assert report.absorbing_state == "exposure"
+        assert report.absorption_probability == pytest.approx(1.0)
+
+    def test_complex_eigenvalues_report_the_largest_modulus(self) -> None:
+        """A transient block with a complex eigenvalue pair still reports rho.
+
+        A cyclic transient block makes ``eigvals`` return complex numbers. The
+        spectral radius is the largest complex *modulus*. An earlier version
+        computed ``max(abs(float(eigenvalue)))``, which discards the imaginary
+        part with a ``ComplexWarning``; that happens to agree here because
+        Perron-Frobenius guarantees a non-negative matrix attains its spectral
+        radius at a real eigenvalue, so this test pins the definition rather
+        than a past wrong answer, and asserts no warning is raised.
+        """
+        states = ("a", "b", "c", "absorbed")
+        transitions = (
+            (0.00, 0.80, 0.00, 0.20),
+            (0.00, 0.00, 0.80, 0.20),
+            (0.80, 0.00, 0.00, 0.20),
+            (0.00, 0.00, 0.00, 1.00),
+        )
+        eigenvalues = np.linalg.eigvals(np.asarray(transitions, dtype=float)[:3, :3])
+        assert np.iscomplexobj(eigenvalues) and np.abs(eigenvalues.imag).max() > 1e-9, (
+            "fixture must actually produce complex eigenvalues"
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")  # a ComplexWarning would fail here
+            report = escalation_analysis(transitions, states)
+        assert report.spectral_radius_q == pytest.approx(float(np.abs(eigenvalues).max()))
+        assert report.spectral_radius_q == pytest.approx(0.8)
+        assert report.absorption_probability == pytest.approx(1.0)
 
 
 class TestSpoofDoctrine:
@@ -122,9 +204,7 @@ class TestCompareDoctrines:
         comparison = compare_doctrines()
         assert comparison.spoof_index == pytest.approx(3.9901, abs=1e-3)
         assert comparison.sanctioned_index == pytest.approx(56.0418, abs=1e-3)
-        assert comparison.acceleration_factor == pytest.approx(
-            comparison.sanctioned_index / comparison.spoof_index
-        )
+        assert comparison.acceleration_factor == pytest.approx(comparison.sanctioned_index / comparison.spoof_index)
 
     def test_deterministic(self) -> None:
         assert compare_doctrines() == compare_doctrines()
