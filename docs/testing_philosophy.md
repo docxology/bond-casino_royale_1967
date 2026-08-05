@@ -22,15 +22,21 @@ real subprocess, not by patching an import.
 
 Nothing in the domain core draws a random number, so there is no seed to fix
 inside an analysis; the declared seed 7 lives in `Provenance` as the mission's
-identity, not as an RNG state. The only wall-clock value in the whole system is
-the `GENERATION_TIMESTAMP` manuscript token, and every test that touches the
-token map passes an explicit `now=` so its output is fixed.
+identity, not as an RNG state. There is no wall-clock value anywhere in the
+system: `generate_variables` reads no clock, so no test needs to inject one.
+An injected `now=` is *not* a determinism test — it proves the function is
+deterministic given a fixed input while saying nothing about the value
+production actually uses. The real gate is
+`tests/test_regeneration_determinism.py`, which regenerates the whole
+`output/` tree twice through the production script and compares hashes.
 
 Consequences a test may rely on and must preserve:
 
 - `simulate_dispatch()` is a pure function of its order stream.
 - `compare_doctrines() == compare_doctrines()`.
 - Figures re-render byte-identically (`tests/test_figures.py` asserts this).
+- A full regeneration is byte-identical to the previous one
+  (`tests/test_regeneration_determinism.py` asserts this end to end).
 - `brief → recon → plan → execute → debrief` is byte-reproducible, and
   `_input_fingerprint()` is a stable sha256 over the canonical inputs.
 
@@ -49,6 +55,7 @@ Consequences a test may rely on and must preserve:
 | `test_manuscript_variables.py` | the token map, config loading, the strict resolved-tree writer, and three manuscript gates (below) |
 | `test_scripts_smoke.py` | subprocess runs of the thin CLIs — exit codes and parsed output |
 | `test_figures.py` | deterministic PNG render plus byte-idempotence |
+| `test_regeneration_determinism.py` | the byte-for-byte regeneration claim — two consecutive production runs, hashed and diffed; no clock-shaped token values; committed stamps held equal to `pyproject.toml` |
 
 ## The three manuscript gates
 

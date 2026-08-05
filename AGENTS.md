@@ -17,8 +17,12 @@ exposed through the FROZEN `bond_api` `MissionProvider` protocol.
   `MagicMock` / `mocker.patch` / `unittest.mock`.
 - **≥90% line+branch coverage on `src/`** (`uv run pytest tests/
   --cov=src --cov-fail-under=90`).
-- **Deterministic:** fixed seed 7, no untracked random reliance, no wall
-  clock in domain artifacts.
+- **Deterministic:** fixed seed 7, no untracked random reliance, and no wall
+  clock or interpreter introspection in *any* persisted artifact — the
+  manuscript token map is a pure function of committed files, so regenerating
+  reproduces `output/` byte for byte (`tests/test_regeneration_determinism.py`
+  proves it by regenerating twice and diffing). Never add a `now=` parameter
+  with a wall-clock default.
 - **Thin orchestrators in `scripts/`; business logic in `src/`.**
 - **No leftover `template[_]code_project` strings** (bracket-split any must-run
   grep in docs so the doc cannot trip its own gate).
@@ -86,6 +90,10 @@ entries — never change a signature, the class name, or a registry symbol.
 - `test_scripts_smoke.py` — subprocess runs of the thin CLIs via
   `sys.executable` with `cwd=project_root`.
 - `test_figures.py` — deterministic PNG render + byte-idempotence.
+- `test_regeneration_determinism.py` — the byte-for-byte claim, executed: the
+  production generator is run twice in sequence (no injected values) and every
+  artifact it writes is hashed and diffed, plus a scan rejecting any
+  clock-shaped token value.
 
 **Positive controls are mandatory for new gates.** Every contract check here
 ships with an input that must break it (see `docs/testing_philosophy.md`); a

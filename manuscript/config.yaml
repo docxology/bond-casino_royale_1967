@@ -8,7 +8,13 @@ paper:
   title: "Casino Royale: FIVE 00s — Special-Agent Mission Software"
   subtitle: "Deterministic Modelling of Multi-Agent Coordination Failure, Dispatch Chaos, Spoof Ops Doctrine, Identity Confusion, Baccarat Odds, and Doctrine Escalation"
   version: "0.1.0"
+  # The manuscript's dated stamp ({{MANUSCRIPT_DATE}}) and its declared
+  # interpreter range ({{PYTHON_REQUIRES}}, kept equal to requires-python in
+  # pyproject.toml by tests/test_regeneration_determinism.py). Both are
+  # committed here precisely so no artifact reads a clock or the running
+  # interpreter — that is what makes regeneration byte-for-byte.
   date: "2026-08-04"
+  python_requires: ">=3.10"
 
 authors:
   - name: "Daniel Ari Friedman"

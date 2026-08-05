@@ -8,12 +8,13 @@ manuscript renderer enforces.
 
 from __future__ import annotations
 
+import inspect
 import json
 import re
-from datetime import datetime
 from pathlib import Path
 
 import pytest
+import yaml
 
 from casino_royale_1967.manuscript_variables import (
     TOKEN_PATTERN,
@@ -25,20 +26,19 @@ from casino_royale_1967.manuscript_variables import (
 
 _ROOT = Path(__file__).resolve().parent.parent
 _MANUSCRIPT = _ROOT / "manuscript"
-_FIXED_NOW = datetime(2026, 8, 4, 9, 0, 0)
 
 
 class TestTokenMap:
     """The token map is populated from live, deterministic computation."""
 
     def test_core_identity_tokens(self) -> None:
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert variables["BOND_IDENTITY"] == "Casino Royale (1967)"
         assert variables["BOND_CODENAME"] == "FIVE 00s"
         assert variables["BOND_VERSION"] == "0.1.0"
 
     def test_configuration_tokens(self) -> None:
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert variables["CONFIG_NUM_AGENTS"] == "5"
         assert variables["CONFIG_NUM_TASKS"] == "6"
         assert variables["CONFIG_OVERLAP_WEIGHT"] == "2"
@@ -46,7 +46,7 @@ class TestTokenMap:
         assert variables["CONFIG_MAX_TICKS"] == "100"
 
     def test_live_result_tokens(self) -> None:
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert variables["RESULT_OVERLAP_COUNT"] == "3"
         assert variables["RESULT_CONFLICT_COUNT"] == "3"
         assert variables["RESULT_COORDINATION_LOSS"] == "15"
@@ -60,7 +60,7 @@ class TestTokenMap:
         assert variables["RESULT_SPOOF_INDEX"] == "45.0"
 
     def test_phase4_result_tokens(self) -> None:
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         # Identity confusion
         assert variables["RESULT_IDENTITY_NMI"] == "0.075"
         assert variables["RESULT_IDENTITY_RESOLUTION"] == "bond_cooper"
@@ -76,7 +76,7 @@ class TestTokenMap:
 
     def test_per_rule_dispatch_tokens(self) -> None:
         """Per-rule rejection counts are tokens, not prose."""
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         per_rule = {
             "RESULT_RULE_EXCLUSIVE_TASK": "2",
             "RESULT_RULE_CLEARANCE": "2",
@@ -92,7 +92,7 @@ class TestTokenMap:
 
     def test_clearance_breach_tokens_describe_the_real_assignment(self) -> None:
         """The clearance-breach narrative is derived from roster + catalog."""
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert variables["RESULT_CLEARANCE_AGENT"] == "bond_jimmy"
         assert variables["RESULT_CLEARANCE_ALIAS"] == "Woody Allen"
         assert variables["RESULT_CLEARANCE_TASK"] == "infiltrate SMERSH headquarters"
@@ -106,7 +106,7 @@ class TestTokenMap:
         from casino_royale_1967.figures.plots import FIGURE_FILENAMES
         from casino_royale_1967.spoof_analyzer import REAL_OPS_RULES
 
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert variables["CONFIG_PROTOCOL_RULES"] == str(len(PROTOCOL_RULES))
         assert variables["CONFIG_DOCTRINE_RULES"] == str(len(REAL_OPS_RULES))
         assert variables["CONFIG_LADDER_STATES"] == str(len(LADDER_STATES))
@@ -114,7 +114,7 @@ class TestTokenMap:
 
     def test_escalation_certainty_tokens(self) -> None:
         """Absorption is reported as a computed fact, not an assumption."""
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert float(variables["RESULT_ESCALATION_SPECTRAL"]) < 1.0
         assert float(variables["RESULT_ESCALATION_ABSORPTION"]) == pytest.approx(1.0, abs=1e-3)
         assert variables["RESULT_ESCALATION_ABSORBING_STATE"] == "catastrophe"
@@ -128,7 +128,7 @@ class TestTokenMap:
         from casino_royale_1967.identity_confusion import analyze_identity
 
         report = analyze_identity()
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         prior = float(variables["RESULT_IDENTITY_PRIOR_ENTROPY"])
         mi = float(variables["RESULT_IDENTITY_MI"])
         nmi = float(variables["RESULT_IDENTITY_NMI"])
@@ -144,13 +144,47 @@ class TestTokenMap:
         assert 0.0 < mi < prior
         assert 0.0 < nmi < 0.2
 
-    def test_deterministic_with_fixed_now(self) -> None:
-        a = generate_variables(_ROOT, now=_FIXED_NOW)
-        b = generate_variables(_ROOT, now=_FIXED_NOW)
-        assert a == b
+    def test_repeated_generation_is_identical(self) -> None:
+        """Two production calls agree — no injected clock, no override.
+
+        The predecessor of this test passed ``now=`` to both calls, which
+        made it a tautology: it fixed the only value that varied. The real
+        end-to-end gate lives in ``test_regeneration_determinism.py``.
+        """
+        assert generate_variables(_ROOT) == generate_variables(_ROOT)
+
+    def test_generate_variables_takes_no_clock_override(self) -> None:
+        """``now=`` must not come back: it is how the wall clock got in.
+
+        Inspecting the signature (rather than the source text) binds the
+        actual callable, so reintroducing the parameter fails here even if
+        the docstring still claims determinism.
+        """
+        params = set(inspect.signature(generate_variables).parameters)
+        assert params == {"project_root"}, f"unexpected parameters: {sorted(params)}"
+
+    def test_committed_stamp_tokens_come_from_config(self) -> None:
+        """The dated stamp is the committed config value, not a clock read."""
+        config = load_mission_config(_ROOT)
+        paper = config["paper"]
+        assert isinstance(paper, dict)
+        variables = generate_variables(_ROOT)
+        assert variables["MANUSCRIPT_DATE"] == paper["date"]
+        assert variables["PYTHON_REQUIRES"] == paper["python_requires"]
+        assert "GENERATION_TIMESTAMP" not in variables
+
+    def test_missing_committed_stamp_field_is_an_error(self, tmp_path: Path) -> None:
+        """A blank stamp field raises rather than falling back to runtime state."""
+        manuscript = tmp_path / "manuscript"
+        manuscript.mkdir()
+        source = yaml.safe_load((_MANUSCRIPT / "config.yaml").read_text(encoding="utf-8"))
+        source["paper"]["date"] = "   "
+        manuscript.joinpath("config.yaml").write_text(yaml.safe_dump(source), encoding="utf-8")
+        with pytest.raises(ValueError, match="paper.date"):
+            generate_variables(tmp_path)
 
     def test_all_values_are_strings(self) -> None:
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert all(isinstance(value, str) for value in variables.values())
 
 
@@ -172,7 +206,7 @@ class TestLiveCrossReference:
     """Every prose token in the manuscript is generated — the render gate."""
 
     def test_all_manuscript_tokens_are_generated(self) -> None:
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         assert _MANUSCRIPT.exists(), "manuscript/ must exist to run the live gate"
         sections = sorted(_MANUSCRIPT.glob("[0-9]*.md"))
         assert sections, "no numbered manuscript sections found"
@@ -195,7 +229,7 @@ class TestLiveCrossReference:
         manuscript hardcoded figure filenames, so a rename in
         ``FIGURE_FILENAMES`` would have silently broken every image link.
         """
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         sections = sorted(_MANUSCRIPT.glob("[0-9]*.md"))
         used: set[str] = set()
         for section in sections:
@@ -395,7 +429,7 @@ class TestSaveVariables:
         assert loaded == variables
 
     def test_live_json_artifact_matches_generate(self, tmp_path: Path) -> None:
-        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        variables = generate_variables(_ROOT)
         out = tmp_path / "vars.json"
         save_variables(variables, out)
         assert json.loads(out.read_text(encoding="utf-8")) == variables

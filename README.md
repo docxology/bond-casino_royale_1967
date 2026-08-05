@@ -106,6 +106,14 @@ uv run python scripts/z_generate_manuscript_variables.py  # tokens + figures + r
 - No analysis draws a random number; seed 7 is the mission's declared
   provenance identity. The dispatch simulation is a pure function of its order
   stream.
+- **Regenerating is byte-for-byte.** Running
+  `scripts/z_generate_manuscript_variables.py` twice reproduces
+  `output/data/manuscript_variables.json`, `output/manuscript/*.md` and
+  `output/figures/*.png` identically, because the token map reads no clock and
+  no interpreter state — the manuscript's date and Python range come from
+  committed `paper.date` / `paper.python_requires` in `manuscript/config.yaml`.
+  `tests/test_regeneration_determinism.py` regenerates twice and diffs the
+  bytes, so the claim fails loudly rather than quietly if that ever changes.
 - Zero mocks — every test exercises real computation on real declared data.
 - ≥90% line+branch coverage on `src/` is the canonical gate; ruff and mypy run
   clean on `src/` and `scripts/`.

@@ -10,9 +10,11 @@ chain), exposed through the FROZEN `bond_api` `MissionProvider` protocol in the
 single adapter `src/casino_royale_1967/mission.py`.
 
 **Verified state today (measured this session, 2026-08-05):**
-`uv run pytest tests/ --cov=src --cov-fail-under=90` → **238 passed, 100.00%
+`uv run pytest tests/ --cov=src --cov-fail-under=90` → **245 passed, 100.00%
 line+branch coverage on `src/`** (every one of the nine measured modules at
 100.00%). `ruff check`, `ruff format --check` and `mypy src/ scripts/` all clean.
+Regenerating twice through `scripts/z_generate_manuscript_variables.py` now
+yields identical bytes (it did not before this session — see **Correctness**).
 All eight findings in `output/verify/casino_royale_1967.json` were re-checked
 against the tree at their recorded locations and are remediated — see
 **Correctness** for exactly what was checked.
@@ -37,6 +39,7 @@ location this session and is fixed in the current tree:
 | Bibliography never cited, therefore inert | `manuscript/references.bib` | All seven bib entries are cited across sections 01/02/03/07, and `tests/test_manuscript_variables.py:313-338` gates both directions (`test_every_bib_entry_is_cited`, `test_every_citation_resolves_to_a_bib_entry`) with a non-vacuity control |
 | "one Finding per concept" vs 8 real findings | `README.md`, `docs/architecture.md` | `README.md:62` says "8 Findings (goal + 7 concept findings)"; `docs/architecture.md:191` explicitly says "the count is not one per concept". Live: `len(recon(...).findings) == 8` |
 | Mislabeled dispatch metric row | `06_reproducibility.md` | Row 27 now reads "Single-agent deduplication of assignments (kept / dropped)", separated from the genuine dispatch rows on 28-29 |
+| **SEVERE — false byte-for-byte regeneration claim** (found and fixed 2026-08-05, not part of the original audit) | `manuscript_variables.py:155,249`, asserted in `01_introduction.md:54-55`, `00_abstract.md:39`, `06_reproducibility.md:5-14`, `AGENTS.md:20` | `GENERATION_TIMESTAMP` was `datetime.now(UTC)` rendered into the manuscript and the token JSON, so two regenerations one second apart differed (`3732d6f5…` vs `be5a42fc…`). The wall clock is gone: `generate_variables` takes no `now=`, and the stamps are the committed `paper.date` / `paper.python_requires`. `tests/test_regeneration_determinism.py` regenerates twice through the production script and diffs every artifact; it was proven able to fail by reintroducing `datetime.now(UTC)` (3 of its 4 tests went red, naming the two drifted files) before restoring |
 
 ### Verification
 
@@ -175,8 +178,13 @@ Claims that are true today but are not bound by a test that can fail.
   `record_provenance_outcome` defaults `started_at` to
   `datetime.now(timezone.utc)`. The goldeneye call site does not override it, so
   its record is *not* byte-reproducible. This package claims byte-reproducibility
-  (`README.md:73-74`), so any binding here must pass an explicit `now=` /
-  `started_at=` derived from the mission, not the wall clock.
+  (`README.md:73-74`) and now *enforces* it
+  (`tests/test_regeneration_determinism.py`), so any binding here must pass an
+  explicit `started_at=` derived from committed inputs — `paper.date` in
+  `manuscript/config.yaml` is the established source — and never the wall clock.
+  If that proves impossible, the outcome artifact must be excluded from the
+  covered set in `test_regeneration_determinism._COVERED` *and* the claim
+  narrowed in words; do not soften the wording while leaving the claim broad.
 - **Done looks like:** `scripts/mission.py execute` writes
   `output/data/five00s_mission.json` through `record_provenance_outcome` with a
   fixed `started_at`; the file's `provenance.input_hash` equals
@@ -259,12 +267,20 @@ Recorded so nobody re-litigates them. None of these is a TODO item.
   doctrine. Stated in `manuscript/07_scope_and_related_work.md` and
   `STANDALONE.md:64-66`.
 
-- **`GENERATION_TIMESTAMP` and `PYTHON_VERSION` are the only environment-
-  dependent tokens.** `manuscript_variables.py:248-249`. The timestamp is
-  overridable for reproducible builds (documented at
-  `manuscript/06_reproducibility.md:12-13`) and
-  `test_deterministic_with_fixed_now` pins the behaviour. Not a determinism
-  violation.
+- **No token is environment-dependent — fixed 2026-08-05.** This entry
+  previously read "`GENERATION_TIMESTAMP` and `PYTHON_VERSION` are the only
+  environment-dependent tokens … Not a determinism violation." That was wrong,
+  and it was the load-bearing wrong claim: `GENERATION_TIMESTAMP` was
+  `datetime.now(UTC)` rendered into `06_reproducibility.md` and into
+  `output/data/manuscript_variables.json`, so the package's byte-for-byte
+  regeneration claim was false on every run. `test_deterministic_with_fixed_now`
+  did not pin the behaviour — it passed the same `now=` to both calls, fixing
+  the only value that varied, which is why the breach survived a green suite.
+  Both tokens are now derived from committed config (`paper.date` →
+  `MANUSCRIPT_DATE`, `paper.python_requires` → `PYTHON_REQUIRES`),
+  `generate_variables` has no `now=` parameter at all, and
+  `tests/test_regeneration_determinism.py` regenerates the tree twice through
+  the production script and diffs the bytes.
 
 - **Local-only, no DOI, no remote.** This tree is never pushed. Do not add
   Zenodo/GitHub location fields to the sidecars (`STANDALONE.md:62-63`).

@@ -38,10 +38,15 @@ the token second. Never the other way round.
 
 ## Rule 5 — Determinism
 
-Domain artifacts must be byte-reproducible: no RNG in any analysis, no wall
-clock in any domain report. The only wall-clock value is the
-`GENERATION_TIMESTAMP` token, overridable via `now=` in tests. Seed 7 is the
-mission's declared provenance identity, not an RNG state.
+Every persisted artifact must be byte-reproducible: no RNG in any analysis, no
+wall clock and no interpreter introspection anywhere that reaches a file.
+`generate_variables` takes no `now=` — the manuscript's date and Python range
+come from committed `paper.date` / `paper.python_requires` in
+`manuscript/config.yaml`. Do not reintroduce an injectable clock: a default
+wall clock behind a test-only override is how this package previously shipped
+a false byte-for-byte claim, and `tests/test_regeneration_determinism.py`
+(which regenerates twice and diffs the bytes) exists to catch its return.
+Seed 7 is the mission's declared provenance identity, not an RNG state.
 
 ## Rule 6 — The layer contract
 

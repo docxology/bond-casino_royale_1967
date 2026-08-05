@@ -12,17 +12,19 @@ never from hand-authored prose:
 ``output/manuscript/``: any unresolved ``{{TOKEN}}`` left behind raises
 ``ValueError`` (draft mode is not offered — every token is computable).
 
-``now=`` is accepted for deterministic tests; production defaults to the
-current UTC timestamp (the one wall-clock value in the token map, per the
-template's ``GENERATION_TIMESTAMP`` convention).
+The token map reads **no** clock and **no** interpreter state: every value is
+a pure function of committed files (``manuscript/config.yaml`` plus the domain
+modules). The manuscript's dated stamp is ``paper.date`` from the config and
+its declared interpreter range is ``paper.python_requires``; there is
+deliberately no ``now=`` parameter, because an injectable clock is still a
+clock, and a default wall clock silently falsifies the package's
+byte-for-byte regeneration claim.
 """
 
 from __future__ import annotations
 
 import json
-import platform
 import re
-from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -100,6 +102,34 @@ def _section(config: dict[str, object], name: str) -> dict[str, object]:
     return value if isinstance(value, dict) else {}
 
 
+def _committed_paper_field(config: dict[str, object], field: str) -> str:
+    """Read a required ``paper:`` field, which must be committed to the config.
+
+    These fields exist so the manuscript can carry a date and an interpreter
+    range without reading a clock or the running interpreter. A missing value
+    is an error rather than a silently-substituted runtime default: a runtime
+    default is exactly how a wall clock re-enters the artifact set.
+
+    Args:
+        config: the merged config mapping from :func:`load_mission_config`.
+        field: the key under ``paper:``.
+
+    Returns:
+        The stripped string value.
+
+    Raises:
+        ValueError: the field is absent, not a string, or blank.
+    """
+    value = _section(config, "paper").get(field)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(
+            f"manuscript/config.yaml must set a non-empty string paper.{field}; "
+            "manuscript stamps are derived from committed configuration, "
+            "never from the wall clock or the running interpreter"
+        )
+    return value.strip()
+
+
 def _rule_counts(violations: tuple[DispatchViolation, ...]) -> dict[str, int]:
     """Violations per protocol rule, with every declared rule present.
 
@@ -118,15 +148,16 @@ def _rule_counts(violations: tuple[DispatchViolation, ...]) -> dict[str, int]:
     return counts
 
 
-def generate_variables(project_root: Path, *, now: datetime | None = None) -> dict[str, str]:
+def generate_variables(project_root: Path) -> dict[str, str]:
     """Compute the full ``{{TOKEN}}`` map for the FIVE 00s manuscript.
 
     Metrics are recomputed live from the deterministic domain core — the same
-    analyses the mission executes — so tokens can never drift from code.
+    analyses the mission executes — so tokens can never drift from code. The
+    map is a pure function of committed files: no clock, no interpreter
+    introspection, no environment lookup, so two runs are byte-identical.
 
     Args:
         project_root: the package root.
-        now: timestamp override (deterministic tests); defaults to UTC now.
 
     Returns:
         Mapping of token name -> rendered string value.
@@ -151,8 +182,6 @@ def generate_variables(project_root: Path, *, now: datetime | None = None) -> di
     odds = deal_outcome_probabilities()
     collision = hand_collision_probability(CANONICAL_TABLE_BONDS)
     escalation = compare_doctrines()
-
-    stamp = (now or datetime.now(UTC)).isoformat(timespec="seconds")
 
     rule_counts = _rule_counts(dispatch.violations)
     rules_fired = sum(1 for count in rule_counts.values() if count > 0)
@@ -244,9 +273,9 @@ def generate_variables(project_root: Path, *, now: datetime | None = None) -> di
         "FIGURE_IDENTITY": FIGURE_FILENAMES["identity"],
         "FIGURE_BACCARAT": FIGURE_FILENAMES["baccarat"],
         "FIGURE_ESCALATION": FIGURE_FILENAMES["escalation"],
-        # Environment
-        "PYTHON_VERSION": platform.python_version(),
-        "GENERATION_TIMESTAMP": stamp,
+        # Declared build inputs — committed config, never runtime state
+        "PYTHON_REQUIRES": _committed_paper_field(config, "python_requires"),
+        "MANUSCRIPT_DATE": _committed_paper_field(config, "date"),
     }
 
 

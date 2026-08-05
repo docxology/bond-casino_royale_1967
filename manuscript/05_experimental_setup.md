@@ -29,7 +29,9 @@ size, figure count), so neither source can drift from the code.
 
 ## Software environment
 
-- Python {{PYTHON_VERSION}}
+- Python `{{PYTHON_REQUIRES}}` — the declared supported range. The artifacts do
+  not record which interpreter within that range produced them, which is what
+  keeps them byte-identical across it.
 - numpy and matplotlib for computation and rendering
 - `bond-api` (frozen `MissionProvider` protocol, local path dependency)
 - Deterministic seed 7; no random draws, no wall clock in artifacts.

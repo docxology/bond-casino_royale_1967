@@ -7,13 +7,26 @@ Every artifact in this project is deterministic by construction:
 - **Fixed seed.** The mission uses seed 7; the dispatch simulation makes no
   random draws at all — order processing is a pure function of the input
   order stream.
-- **No wall clock in domain artifacts.** Coordination, dispatch, and doctrine
-  reports carry no timestamps; `Provenance.wall_time_s` is `0.0`. The only
-  wall-clock value in the system is the `GENERATION_TIMESTAMP` manuscript
-  token, injected at `{{GENERATION_TIMESTAMP}}` and overridable for
-  deterministic tests.
+- **No wall clock in any persisted artifact.** Coordination, dispatch, and
+  doctrine reports carry no timestamps; `Provenance.wall_time_s` is `0.0`; and
+  the manuscript token map reads no clock at all — `generate_variables` takes
+  no `now=` parameter, because an injectable clock with a wall-clock default is
+  still a wall clock. This manuscript's date, {{MANUSCRIPT_DATE}}, is the
+  committed `paper.date` in `manuscript/config.yaml`; edit that file to change
+  it, and it is otherwise fixed.
+- **No interpreter state either.** The declared Python range is
+  `{{PYTHON_REQUIRES}}` — the committed `paper.python_requires`, held equal to
+  `requires-python` in `pyproject.toml` by test. The token map introspects
+  nothing about the machine that ran it.
 - **Live computation.** Manuscript metrics are recomputed from the domain core
   at hydration time, so prose can never drift from code.
+
+Because the token map is a pure function of committed files, regenerating with
+`scripts/z_generate_manuscript_variables.py` reproduces
+`output/data/manuscript_variables.json`, `output/manuscript/*.md`, and
+`output/figures/*.png` **byte for byte**. That is not an aspiration:
+`tests/test_regeneration_determinism.py` runs the generator twice in
+succession, hashes every artifact under `output/`, and fails on any difference.
 
 ## Canonical metric snapshot
 
