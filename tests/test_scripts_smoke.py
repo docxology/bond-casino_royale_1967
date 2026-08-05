@@ -13,6 +13,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 _ROOT = Path(__file__).resolve().parent.parent
 _SCRIPTS = _ROOT / "scripts"
 
@@ -35,7 +37,7 @@ class TestMissionCLI:
         assert result.returncode == 0
         payload = json.loads(result.stdout)
         assert payload["codename"] == "FIVE 00s"
-        assert len(payload["objectives"]) == 3
+        assert len(payload["objectives"]) == 6
 
     def test_recon(self) -> None:
         result = _run("recon")
@@ -48,7 +50,7 @@ class TestMissionCLI:
         result = _run("plan")
         assert result.returncode == 0
         payload = json.loads(result.stdout)
-        assert len(payload["steps"]) == 3
+        assert len(payload["steps"]) == 6
 
     def test_execute(self) -> None:
         result = _run("execute")
@@ -57,6 +59,8 @@ class TestMissionCLI:
         assert payload["success"] is True
         assert payload["provenance"]["input_hash"]
         assert payload["results"]["doctrine"]["spoof_index"] == 45.0
+        assert payload["results"]["baccarat"]["player_probability"] == pytest.approx(0.446147, abs=1e-4)
+        assert payload["results"]["escalation"]["acceleration_factor"] == pytest.approx(14.045, abs=1e-1)
 
     def test_debrief(self) -> None:
         result = _run("debrief")
@@ -69,7 +73,14 @@ class TestMissionCLI:
         result = _run("figures")
         assert result.returncode == 0
         payload = json.loads(result.stdout)
-        assert set(payload) == {"coordination", "dispatch", "spoof"}
+        assert set(payload) == {
+            "coordination",
+            "dispatch",
+            "spoof",
+            "identity",
+            "baccarat",
+            "escalation",
+        }
         for name, path in payload.items():
             assert Path(path).exists(), f"missing {name} figure at {path}"
 

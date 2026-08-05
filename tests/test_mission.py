@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bond_api.discovery import load_provider
 from bond_api.protocol import (
     Debrief,
@@ -65,8 +67,8 @@ class TestMissionLifecycle:
         assert isinstance(brief, MissionBrief)
         assert brief.film == FILM
         assert brief.codename == CODENAME
-        assert len(brief.objectives) == 3
-        assert len(brief.assets) == 2
+        assert len(brief.objectives) == 6
+        assert len(brief.assets) == 4
         assert len(brief.constraints) == 2
 
     def test_recon(self) -> None:
@@ -74,14 +76,30 @@ class TestMissionLifecycle:
         report = provider.recon(ReconRequest(goal="characterize the farce"))
         assert isinstance(report, ReconReport)
         labels = {f.label for f in report.findings}
-        assert labels >= {"goal", "overlap", "conflict", "dispatch", "doctrine"}
+        assert labels >= {
+            "goal",
+            "overlap",
+            "conflict",
+            "dispatch",
+            "doctrine",
+            "identity",
+            "table",
+            "escalation",
+        }
 
     def test_plan(self) -> None:
         provider = FilmProvider()
         plan = provider.plan(provider.brief())
         assert isinstance(plan, MissionPlan)
         actions = {step.action for step in plan.steps}
-        assert actions == {"analyze_assignments", "simulate_dispatch", "analyze_doctrine"}
+        assert actions == {
+            "analyze_assignments",
+            "simulate_dispatch",
+            "analyze_doctrine",
+            "analyze_identity",
+            "deal_outcome_probabilities",
+            "compare_doctrines",
+        }
 
     def test_execute(self) -> None:
         provider = FilmProvider()
@@ -92,7 +110,7 @@ class TestMissionLifecycle:
         assert outcome.provenance.package_version == PACKAGE_VERSION
         assert outcome.provenance.seed == SEED
         assert outcome.provenance.wall_time_s == 0.0
-        assert len(outcome.results["steps_completed"]) == 3
+        assert len(outcome.results["steps_completed"]) == 6
 
     def test_debrief(self) -> None:
         provider = FilmProvider()
@@ -136,12 +154,15 @@ class TestDeterminism:
 class TestGadgets:
     """The film registers its gadgets on the shared registry."""
 
-    def test_module_registry_has_four_gadgets(self) -> None:
+    def test_module_registry_has_seven_gadgets(self) -> None:
         assert GADGET_REGISTRY.gadgets_for(FILM) == (
             "roster",
             "coordination",
             "dispatch",
             "doctrine",
+            "identity",
+            "baccarat",
+            "escalation",
         )
 
     def test_gadgets_payloads_match_mission_results(self) -> None:
@@ -150,6 +171,16 @@ class TestGadgets:
         assert GADGETS["coordination"]["overlap_count"] == results["coordination"]["overlap_count"]
         assert GADGETS["dispatch"]["chaos_index"] == results["dispatch"]["chaos_index"]
         assert GADGETS["doctrine"]["spoof_index"] == results["doctrine"]["spoof_index"]
+        assert GADGETS["identity"]["resolution"] == results["identity"]["resolution"]
+        assert GADGETS["baccarat"]["table_bonds"] == results["baccarat"]["table_bonds"]
+        assert GADGETS["escalation"]["acceleration_factor"] == results["escalation"]["acceleration_factor"]
+
+    def test_new_result_payloads_present(self) -> None:
+        provider = FilmProvider()
+        results = provider.execute(provider.plan(provider.brief())).results
+        assert results["identity"]["normalized_mutual_information"] == pytest.approx(0.0753, abs=1e-3)
+        assert results["baccarat"]["player_probability"] == pytest.approx(0.446147, abs=1e-5)
+        assert results["escalation"]["acceleration_factor"] == pytest.approx(14.045, abs=1e-2)
 
     def test_register_gadgets_merges_into_existing(self) -> None:
         registry = GadgetRegistry()
@@ -163,7 +194,15 @@ class TestGadgets:
     def test_new_registry_from_register_gadgets(self) -> None:
         registry = register_gadgets()
         assert isinstance(registry, GadgetRegistry)
-        assert registry.gadgets_for(FILM) == ("roster", "coordination", "dispatch", "doctrine")
+        assert registry.gadgets_for(FILM) == (
+            "roster",
+            "coordination",
+            "dispatch",
+            "doctrine",
+            "identity",
+            "baccarat",
+            "escalation",
+        )
 
     def test_mission_registry_registers_provider_by_slug(self) -> None:
         registry = MissionRegistry()

@@ -34,3 +34,38 @@ claims:
     source_tier: project_source
     freshness: active
     artifact_path: src/casino_royale_1967/coordination_farce.py
+  - claim_id: identity-nmi
+    kind: number
+    value: 0.075
+    source: src/casino_royale_1967/identity_confusion.py analyze_identity routing normalized mutual information
+    source_tier: generated_metric
+    freshness: active
+    artifact_path: output/data/manuscript_variables.json
+  - claim_id: identity-resolution
+    kind: string
+    value: bond_cooper
+    source: src/casino_royale_1967/identity_confusion.py resolve_identity('smersh_hq', (True, True)) argmax
+    source_tier: generated_metric
+    freshness: active
+    artifact_path: output/data/manuscript_variables.json
+  - claim_id: baccarat-player-odds
+    kind: number
+    value: 0.4461
+    source: src/casino_royale_1967/baccarat_table.py deal_outcome_probabilities infinite-deck player
+    source_tier: generated_metric
+    freshness: active
+    artifact_path: output/data/manuscript_variables.json
+  - claim_id: table-collision
+    kind: number
+    value: 0.704
+    source: src/casino_royale_1967/baccarat_table.py hand_collision_probability(5) birthday bound
+    source_tier: generated_metric
+    freshness: active
+    artifact_path: output/data/manuscript_variables.json
+  - claim_id: escalation-acceleration
+    kind: number
+    value: 14.0
+    source: src/casino_royale_1967/escalation_ladder.py compare_doctrines sanctioned/spoof expected absorption
+    source_tier: generated_metric
+    freshness: active
+    artifact_path: output/data/manuscript_variables.json

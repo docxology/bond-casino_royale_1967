@@ -1,13 +1,19 @@
 """Deterministic matplotlib figures for the FIVE 00s mission.
 
-Three publication-style figures, one per concept module:
+Six publication-style figures, one per concept:
 
 * ``coordination_farce.png`` — per-task agent load (overlap visible as bars
-  taller than one) with conflict pairs annotated;
+  taller than one);
 * ``dispatch_chaos.png`` — tick-by-tick dispatch timeline: accepted orders vs
   protocol violations, stacked;
 * ``spoof_analyzer.png`` — per-directive spoof score bar chart with the
-  normalised spoof index in the title.
+  normalised spoof index in the title;
+* ``identity_confusion.png`` — the 5x5 routing confusion matrix heatmap with
+  the normalized mutual information in the title;
+* ``baccarat_odds.png`` — player/banker/tie deal probabilities with the
+  five-Bond hand-collision probability annotated;
+* ``escalation_ladder.png`` — expected steps to catastrophe per transient
+  state, grouped by doctrine (spoof vs sanctioned).
 
 Every figure is generated from the canonical deterministic analyses (no RNG,
 no wall clock) and rendered with a fixed DPI, so re-running reproduces
@@ -24,11 +30,21 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt  # noqa: E402
 
+from casino_royale_1967.baccarat_table import (
+    CANONICAL_TABLE_BONDS,
+    deal_outcome_probabilities,
+    hand_collision_probability,
+)
 from casino_royale_1967.coordination_farce import (
     DEFAULT_ASSIGNMENTS,
     analyze_assignments,
 )
 from casino_royale_1967.dispatch_chaos import CHAOS_ORDERS, simulate_dispatch
+from casino_royale_1967.escalation_ladder import compare_doctrines
+from casino_royale_1967.identity_confusion import (
+    analyze_identity,
+    build_confusion_matrix,
+)
 from casino_royale_1967.spoof_analyzer import (
     CANONICAL_SPOOF_DOCTRINE,
     analyze_doctrine,
@@ -37,8 +53,11 @@ from casino_royale_1967.spoof_analyzer import (
 __all__ = [
     "FIGURE_FILENAMES",
     "render_all_figures",
+    "render_baccarat_figure",
     "render_coordination_figure",
     "render_dispatch_figure",
+    "render_escalation_figure",
+    "render_identity_figure",
     "render_spoof_figure",
 ]
 
@@ -46,6 +65,9 @@ FIGURE_FILENAMES: dict[str, str] = {
     "coordination": "coordination_farce.png",
     "dispatch": "dispatch_chaos.png",
     "spoof": "spoof_analyzer.png",
+    "identity": "identity_confusion.png",
+    "baccarat": "baccarat_odds.png",
+    "escalation": "escalation_ladder.png",
 }
 
 
@@ -85,10 +107,8 @@ def render_dispatch_figure(output_dir: Path) -> Path:
     violations = [sum(1 for e in report.events if e.tick == t and e.event_type == "violation") for t in ticks]
 
     fig, ax = plt.subplots(figsize=(9, 4.5))
-    bottom = [0] * len(ticks)
     ax.bar(ticks, dispatched, label="dispatched", color="#1e3a8a")
-    bottom = dispatched
-    ax.bar(ticks, violations, bottom=bottom, label="violations", color="#b91c1c")
+    ax.bar(ticks, violations, bottom=dispatched, label="violations", color="#b91c1c")
     ax.set_xlabel("tick")
     ax.set_ylabel("orders")
     ax.set_title(
@@ -114,6 +134,88 @@ def render_spoof_figure(output_dir: Path) -> Path:
     return _save(fig, output_dir, FIGURE_FILENAMES["spoof"])
 
 
+def render_identity_figure(output_dir: Path) -> Path:
+    """The 5x5 routing confusion-matrix heatmap (NMI in the title)."""
+    confusion = build_confusion_matrix()
+    report = analyze_identity()
+    labels = [f"B{i + 1}" for i in range(confusion.shape[0])]
+
+    fig, ax = plt.subplots(figsize=(7, 6))
+    cmap = plt.get_cmap("RdYlBu_r")
+    image = ax.imshow(confusion, cmap=cmap, vmin=0.0, vmax=confusion.max())
+    ax.set_xticks(range(confusion.shape[0]))
+    ax.set_yticks(range(confusion.shape[0]))
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(labels)
+    ax.set_xlabel("routed to")
+    ax.set_ylabel("intended agent")
+    ax.set_title(
+        f"Identity confusion: routing NMI {report.normalized_mutual_information:.3f}, "
+        f"ambiguity {report.conditional_entropy:.2f} bits"
+    )
+    fig.colorbar(image, ax=ax)
+    fig.tight_layout()
+    return _save(fig, output_dir, FIGURE_FILENAMES["identity"])
+
+
+def render_baccarat_figure(output_dir: Path) -> Path:
+    """Player/banker/tie odds bar chart with the table-collision annotation."""
+    odds = deal_outcome_probabilities()
+    collision = hand_collision_probability(CANONICAL_TABLE_BONDS)
+    categories = ["player", "banker", "tie"]
+    values = [
+        odds.player_probability,
+        odds.banker_probability,
+        odds.tie_probability,
+    ]
+
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    bars = ax.bar(categories, values, color=["#1e3a8a", "#b91c1c", "#64748b"])
+    for bar, value in zip(bars, values, strict=True):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 0.005,
+            f"{value:.3f}",
+            ha="center",
+            va="bottom",
+        )
+    ax.set_ylabel("probability")
+    ax.set_ylim(0.0, 0.55)
+    ax.set_title(f"Casino table odds: {CANONICAL_TABLE_BONDS}-Bond hand-collision probability {collision:.3f}")
+    fig.tight_layout()
+    return _save(fig, output_dir, FIGURE_FILENAMES["baccarat"])
+
+
+def render_escalation_figure(output_dir: Path) -> Path:
+    """Grouped bars: expected absorption time per state, spoof vs sanctioned."""
+    comparison = compare_doctrines()
+    states = comparison.spoof_report.states[:-1]  # transient states only
+    spoof = list(comparison.spoof_report.expected_absorption)
+    sanctioned = list(comparison.sanctioned_report.expected_absorption)
+    x = list(range(len(states)))
+
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    width = 0.38
+    ax.bar(x, spoof, width, label="spoof doctrine", color="#b91c1c")
+    ax.bar(
+        [i + width for i in x],
+        sanctioned,
+        width,
+        label="sanctioned doctrine",
+        color="#1e3a8a",
+    )
+    ax.set_xticks([i + width / 2 for i in x])
+    ax.set_xticklabels(states)
+    ax.set_ylabel("expected steps to catastrophe")
+    ax.set_title(
+        f"Doctrine escalation: spoof {comparison.spoof_index:.1f} steps vs "
+        f"sanctioned {comparison.sanctioned_index:.1f} ({comparison.acceleration_factor:.1f}x faster)"
+    )
+    ax.legend()
+    fig.tight_layout()
+    return _save(fig, output_dir, FIGURE_FILENAMES["escalation"])
+
+
 def render_all_figures(output_dir: Path | str) -> dict[str, Path]:
     """Render every FIVE 00s figure into ``output_dir``.
 
@@ -128,4 +230,7 @@ def render_all_figures(output_dir: Path | str) -> dict[str, Path]:
         "coordination": render_coordination_figure(target),
         "dispatch": render_dispatch_figure(target),
         "spoof": render_spoof_figure(target),
+        "identity": render_identity_figure(target),
+        "baccarat": render_baccarat_figure(target),
+        "escalation": render_escalation_figure(target),
     }

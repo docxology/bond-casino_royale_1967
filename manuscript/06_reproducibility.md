@@ -31,6 +31,12 @@ Every artifact in this project is deterministic by construction:
 | Chaos index | {{RESULT_CHAOS_INDEX}} |
 | Success ratio | {{RESULT_SUCCESS_RATIO}} |
 | Spoof index | {{RESULT_SPOOF_INDEX}} / 100 |
+| Identity NMI | {{RESULT_IDENTITY_NMI}} |
+| Identity ambiguity (bits) | {{RESULT_IDENTITY_AMBIGUITY}} |
+| Baccarat player / banker | {{RESULT_BACCARAT_PLAYER}} / {{RESULT_BACCARAT_BANKER}} |
+| Table collision ({{CONFIG_TABLE_BONDS}} Bonds) | {{RESULT_TABLE_COLLISION}} |
+| Escalation (spoof / sanctioned steps) | {{RESULT_ESCALATION_SPOOF}} / {{RESULT_ESCALATION_SANCTIONED}} |
+| Acceleration factor | {{RESULT_ESCALATION_ACCELERATION}}× |
 
 ## Verification
 

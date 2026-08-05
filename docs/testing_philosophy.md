@@ -14,6 +14,9 @@ artifacts under test.
 | `test_coordination_farce.py` | roster/catalog facts, overlap + conflict + clearance detection, weighted loss, deduplication semantics, error branches |
 | `test_dispatch_chaos.py` | all five protocol rules, canonical counts/ratios, determinism, validation errors |
 | `test_spoof_analyzer.py` | word-boundary scoring, rule contradictance, oxymorons, aggregate index, robustness (empty / bare-string input) |
+| `test_identity_confusion.py` | entropy functions, confusion-matrix stochasticity, NMI, Bayesian resolution, degenerate single-agent edge cases |
+| `test_baccarat_table.py` | hand/draw rules, canonical odds vs an independent with-replacement brute force, hand-total collision, error branches |
+| `test_escalation_ladder.py` | validation, fundamental matrix, expected absorption, spoof-vs-sanctioned acceleration |
 | `test_mission.py` | `bond_api` protocol conformance, five-stage flow, determinism, gadget registry, serialization round-trips, slug discovery |
 | `test_manuscript_variables.py` | token map, config loading, strict resolved-tree writer, the **live cross-reference gate** over `manuscript/[0-9]*.md` |
 | `test_scripts_smoke.py` | subprocess runs of the thin CLIs (exit codes + parsed output) |

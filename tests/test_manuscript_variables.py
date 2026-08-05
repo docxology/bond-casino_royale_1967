@@ -59,6 +59,21 @@ class TestTokenMap:
         assert variables["RESULT_SUCCESS_RATIO"] == "0.38"
         assert variables["RESULT_SPOOF_INDEX"] == "45.0"
 
+    def test_phase4_result_tokens(self) -> None:
+        variables = generate_variables(_ROOT, now=_FIXED_NOW)
+        # Identity confusion
+        assert variables["RESULT_IDENTITY_NMI"] == "0.075"
+        assert variables["RESULT_IDENTITY_RESOLUTION"] == "bond_cooper"
+        assert variables["CONFIG_TABLE_BONDS"] == "5"
+        # Baccarat odds (canonical infinite-deck values)
+        assert variables["RESULT_BACCARAT_PLAYER"] == "0.4461"
+        assert variables["RESULT_BACCARAT_BANKER"] == "0.4584"
+        assert variables["RESULT_TABLE_COLLISION"] == "0.704"
+        # Escalation ladder
+        assert variables["RESULT_ESCALATION_SPOOF"] == "4.0"
+        assert variables["RESULT_ESCALATION_SANCTIONED"] == "56.0"
+        assert variables["RESULT_ESCALATION_ACCELERATION"] == "14.0"
+
     def test_deterministic_with_fixed_now(self) -> None:
         a = generate_variables(_ROOT, now=_FIXED_NOW)
         b = generate_variables(_ROOT, now=_FIXED_NOW)

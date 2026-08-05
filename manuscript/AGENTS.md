@@ -41,6 +41,9 @@ All figures are referenced via Pandoc-crossref `[@fig:label]`:
 | `{#fig:coordination}` | `output/figures/coordination_farce.png` | `render_coordination_figure()` |
 | `{#fig:dispatch}` | `output/figures/dispatch_chaos.png` | `render_dispatch_figure()` |
 | `{#fig:spoof}` | `output/figures/spoof_analyzer.png` | `render_spoof_figure()` |
+| `{#fig:identity}` | `output/figures/identity_confusion.png` | `render_identity_figure()` |
+| `{#fig:baccarat}` | `output/figures/baccarat_odds.png` | `render_baccarat_figure()` |
+| `{#fig:escalation}` | `output/figures/escalation_ladder.png` | `render_escalation_figure()` |
 
 ## Authoritative token source
 

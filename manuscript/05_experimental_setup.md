@@ -16,6 +16,7 @@ All identity and experiment parameters are declared in
 | Overlap loss weight | {{CONFIG_OVERLAP_WEIGHT}} |
 | Conflict loss weight | {{CONFIG_CONFLICT_WEIGHT}} |
 | Dispatch horizon (ticks) | {{CONFIG_MAX_TICKS}} |
+| Casino table (Bonds seated) | {{CONFIG_TABLE_BONDS}} |
 
 ## Software environment
 

@@ -1,11 +1,15 @@
 """Casino Royale (1967) — FIVE 00s mission software.
 
-Public API surface: the three pure domain modules, the mission adapter, and
+Public API surface: the six pure domain modules, the mission adapter, and
 the manuscript-variable generator.
 """
 
 from __future__ import annotations
 
+from casino_royale_1967.baccarat_table import (
+    deal_outcome_probabilities,
+    hand_collision_probability,
+)
 from casino_royale_1967.coordination_farce import (
     AGENT_ROSTER,
     TASK_CATALOG,
@@ -15,6 +19,14 @@ from casino_royale_1967.coordination_farce import (
 from casino_royale_1967.dispatch_chaos import (
     CHAOS_ORDERS,
     simulate_dispatch,
+)
+from casino_royale_1967.escalation_ladder import (
+    compare_doctrines,
+    escalation_analysis,
+)
+from casino_royale_1967.identity_confusion import (
+    analyze_identity,
+    build_confusion_matrix,
 )
 from casino_royale_1967.mission import (
     CODENAME,
@@ -44,6 +56,12 @@ __all__ = [
     "simulate_dispatch",
     "CANONICAL_SPOOF_DOCTRINE",
     "analyze_doctrine",
+    "analyze_identity",
+    "build_confusion_matrix",
+    "deal_outcome_probabilities",
+    "hand_collision_probability",
+    "escalation_analysis",
+    "compare_doctrines",
     # Protocol adapter
     "MissionProvider",
     "GADGET_REGISTRY",

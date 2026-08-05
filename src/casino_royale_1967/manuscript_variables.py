@@ -27,6 +27,11 @@ from pathlib import Path
 
 import yaml
 
+from casino_royale_1967.baccarat_table import (
+    CANONICAL_TABLE_BONDS,
+    deal_outcome_probabilities,
+    hand_collision_probability,
+)
 from casino_royale_1967.coordination_farce import (
     AGENT_ROSTER,
     DEFAULT_ASSIGNMENTS,
@@ -35,7 +40,9 @@ from casino_royale_1967.coordination_farce import (
     deduplicate_assignments,
 )
 from casino_royale_1967.dispatch_chaos import simulate_dispatch
+from casino_royale_1967.escalation_ladder import compare_doctrines
 from casino_royale_1967.figures.plots import FIGURE_FILENAMES
+from casino_royale_1967.identity_confusion import analyze_identity
 from casino_royale_1967.mission import CODENAME, IDENTITY, PACKAGE_VERSION
 from casino_royale_1967.spoof_analyzer import analyze_doctrine
 
@@ -120,6 +127,10 @@ def generate_variables(project_root: Path, *, now: datetime | None = None) -> di
     dedup = deduplicate_assignments(DEFAULT_ASSIGNMENTS)
     dispatch = simulate_dispatch(max_ticks=max_ticks)
     doctrine = analyze_doctrine()
+    identity = analyze_identity()
+    odds = deal_outcome_probabilities()
+    collision = hand_collision_probability(CANONICAL_TABLE_BONDS)
+    escalation = compare_doctrines()
 
     stamp = (now or datetime.now(UTC)).isoformat(timespec="seconds")
 
@@ -134,6 +145,7 @@ def generate_variables(project_root: Path, *, now: datetime | None = None) -> di
         "CONFIG_OVERLAP_WEIGHT": f"{overlap_weight:g}",
         "CONFIG_CONFLICT_WEIGHT": f"{conflict_weight:g}",
         "CONFIG_MAX_TICKS": str(max_ticks),
+        "CONFIG_TABLE_BONDS": str(CANONICAL_TABLE_BONDS),
         # Coordination-farce results
         "RESULT_ASSIGNMENTS": str(coordination.total_assignments),
         "RESULT_OVERLAP_COUNT": str(coordination.overlap_count),
@@ -154,10 +166,28 @@ def generate_variables(project_root: Path, *, now: datetime | None = None) -> di
         "RESULT_MEAN_SPOOF_SCORE": f"{doctrine.mean_score:.2f}",
         "RESULT_SPOOF_INDEX": f"{doctrine.spoof_index:.1f}",
         "RESULT_WORST_DIRECTIVE": doctrine.worst_directive,
+        # Identity-confusion results
+        "RESULT_IDENTITY_NMI": f"{identity.normalized_mutual_information:.3f}",
+        "RESULT_IDENTITY_AMBIGUITY": f"{identity.conditional_entropy:.2f}",
+        "RESULT_IDENTITY_RESOLUTION": identity.resolution.resolution,
+        "RESULT_IDENTITY_CONFIDENCE": f"{identity.resolution.confidence:.3f}",
+        # Baccarat-table results
+        "RESULT_BACCARAT_PLAYER": f"{odds.player_probability:.4f}",
+        "RESULT_BACCARAT_BANKER": f"{odds.banker_probability:.4f}",
+        "RESULT_BACCARAT_TIE": f"{odds.tie_probability:.4f}",
+        "RESULT_TABLE_COLLISION": f"{collision:.3f}",
+        "RESULT_BANKER_ADVANTAGE": f"{odds.banker_probability - odds.player_probability:+.4f}",
+        # Escalation results
+        "RESULT_ESCALATION_SPOOF": f"{escalation.spoof_index:.1f}",
+        "RESULT_ESCALATION_SANCTIONED": f"{escalation.sanctioned_index:.1f}",
+        "RESULT_ESCALATION_ACCELERATION": f"{escalation.acceleration_factor:.1f}",
         # Figures
         "FIGURE_COORDINATION": FIGURE_FILENAMES["coordination"],
         "FIGURE_DISPATCH": FIGURE_FILENAMES["dispatch"],
         "FIGURE_SPOOF": FIGURE_FILENAMES["spoof"],
+        "FIGURE_IDENTITY": FIGURE_FILENAMES["identity"],
+        "FIGURE_BACCARAT": FIGURE_FILENAMES["baccarat"],
+        "FIGURE_ESCALATION": FIGURE_FILENAMES["escalation"],
         # Environment
         "PYTHON_VERSION": platform.python_version(),
         "GENERATION_TIMESTAMP": stamp,

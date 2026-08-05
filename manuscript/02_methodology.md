@@ -107,3 +107,79 @@ The per-directive score is
 aggregate **spoof index** is the mean score scaled to `[0, 100]`
 (`min(100, mean * 10)`), rounded to one decimal. The film's canonical
 standing orders comprise {{RESULT_DIRECTIVES}} directives.
+
+## 4. The identity-confusion model
+
+`src/casino_royale_1967/identity_confusion.py` quantifies the codename
+collapse with information theory and Bayesian inference.
+
+**Confusion matrix.** Each agent is represented by a feature vector
+(normalized clearance + a jurisdiction one-hot over the task catalog).
+Routing confusion `confusion[i][j]` — the probability an order intended for
+agent *i* is routed to agent *j* — is a row-softmax over pairwise feature
+similarity scaled by a temperature. The matrix is row-stochastic and
+deterministic.
+
+**Entropy / mutual information.** With a uniform prior over the five Bonds,
+the model computes Shannon entropy of the intended identity
+`H(intended)` ({{RESULT_IDENTITY_NMI}}-related), the conditional entropy
+`H(routed | intended)` — its **identity ambiguity** of
+{{RESULT_IDENTITY_AMBIGUITY}} bits — the marginal routing entropy, the mutual
+information `I = H(routed) - H(routed|intended)`, and the normalized mutual
+information `NMI = I / max(H(intended), H(routed))`. Because all five agents
+share one codename, the *codename* itself carries `0` bits; the shared name
+is pure identity loss.
+
+**Bayesian resolution.** Given a dispatch sighting's evidence — whether the
+presented jurisdiction matched the task's and whether clearance was
+sufficient — `resolve_identity` computes the posterior over the roster with a
+uniform prior and an independent jurisdiction/clearance likelihood table. The
+argmax is the resolution, its mass the confidence.
+
+## 5. The baccarat table model
+
+`src/casino_royale_1967/baccarat_table.py` models the casino set-piece with
+exact enumeration.
+
+**Hand valuation.** Baccarat hands total modulo 10; 10/J/Q/K count as 0;
+a two-card total of 8 or 9 is a *natural* that ends the deal immediately.
+The player draws on 0-5 and stands on 6-7; the banker follows the standard
+chemin de fer table keyed on its total and the player's third card.
+
+**Deal odds.** `deal_outcome_probabilities` enumerates every draw outcome
+(four to six cards) under the drawing rules, weighting each card by its
+value's share of the deck — the industry-standard infinite-deck baccarat odds
+computation. For the 52-card standard it reproduces the canonical published
+figures (player {{RESULT_BACCARAT_PLAYER}}, banker {{RESULT_BACCARAT_BANKER}},
+tie {{RESULT_BACCARAT_TIE}}), with the banker's historical advantage of
+{{RESULT_BANKER_ADVANTAGE}}.
+
+**The farce metric.** `two_card_total_counts` computes the *exact*
+no-replacement marginal distribution of a two-card hand total from the actual
+deck; `hand_collision_probability` then applies the birthday bound — the
+elementary symmetric polynomial `n! * e_n(p_0..p_9)` — to answer: across
+{{CONFIG_TABLE_BONDS}} Bonds at the table, what is the probability at least
+two are dealt the same hand total? The answer is {{RESULT_TABLE_COLLISION}}.
+
+## 6. The escalation-ladder model
+
+`src/casino_royale_1967/escalation_ladder.py` models doctrine as an absorbing
+Markov chain (Kemeny-Snell analysis, exact numpy linear algebra).
+
+The ladder `quiet → rumour → scandal → spectacle → catastrophe` has
+`catastrophe` absorbing. A doctrine is a row-stochastic transition matrix
+(`SPOOF_DOCTRINE_TRANSITIONS`, `SANCTIONED_DOCTRINE_TRANSITIONS`). The
+analysis computes:
+
+- the **fundamental matrix** `N = (I - Q)^{-1}` over the transient states;
+- the **expected absorption time** `t = N @ 1` from each state — the expected
+  steps to catastrophe;
+- a **spectral radius** of `Q` below 1 (guaranteeing absorption) and the
+  absorption probability (~1.0).
+
+`compare_doctrines` reports the **escalation index** (expected steps from
+`quiet`) under each doctrine and the acceleration factor
+`sanctioned / spoof`: the farce reaches catastrophe in
+{{RESULT_ESCALATION_SPOOF}} steps versus {{RESULT_ESCALATION_SANCTIONED}}
+under discretion — {{RESULT_ESCALATION_ACCELERATION}}× faster.
+

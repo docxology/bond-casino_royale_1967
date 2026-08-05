@@ -48,3 +48,39 @@ Contradiction detection attributes the scores across the sane rule surface
 (identity, single-agent discipline, command, discretion, force, fratricide),
 demonstrating that the analyzer exercises every rule rather than a narrow
 subset.
+
+## Identity confusion
+
+The five Bonds share one codename, and the resulting identity collapse is
+measured in bits. Routing carries only
+**{{RESULT_IDENTITY_NMI}} normalized mutual information** (a near-zero value:
+the observed routing reveals almost nothing about which physical Bond was
+intended), while each dispatch loses **{{RESULT_IDENTITY_AMBIGUITY}} bits** of
+identity. A Bayesian sighting (jurisdiction match + clearance sufficiency) at
+the SMERSH operation resolves to *{{RESULT_IDENTITY_RESOLUTION}}* with
+posterior confidence {{RESULT_IDENTITY_CONFIDENCE}}.
+
+![Routing confusion matrix across the five Bonds.](../output/figures/identity_confusion.png){#fig:identity}
+
+## The casino table
+
+The baccarat table model derives the exact deal odds under the standard
+chemin de fer drawing rules: **player {{RESULT_BACCARAT_PLAYER}}, banker
+{{RESULT_BACCARAT_BANKER}}, tie {{RESULT_BACCARAT_TIE}}** (a banker advantage
+of {{RESULT_BANKER_ADVANTAGE}}) — the canonical infinite-deck figures. The
+farce lives at the table itself: with all {{CONFIG_TABLE_BONDS}} Bonds seated,
+the probability that at least two are dealt the same hand total is
+**{{RESULT_TABLE_COLLISION}}** — a hand-collision farce more likely than not.
+
+![Casino table deal odds with the five-Bond collision probability.](../output/figures/baccarat_odds.png){#fig:baccarat}
+
+## Escalation ladder
+
+Modelled as an absorbing Markov chain over
+`quiet → rumour → scandal → spectacle → catastrophe`, the spoof doctrine
+reaches catastrophe in **{{RESULT_ESCALATION_SPOOF}} expected steps**, while a
+disciplined doctrine takes {{RESULT_ESCALATION_SANCTIONED}} — the farce
+escalates **{{RESULT_ESCALATION_ACCELERATION}}× faster**.
+
+![Expected steps to catastrophe per state, by doctrine.](../output/figures/escalation_ladder.png){#fig:escalation}
+

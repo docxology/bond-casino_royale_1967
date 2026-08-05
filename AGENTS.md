@@ -30,7 +30,7 @@ exposed through the FROZEN `bond_api` `MissionProvider` protocol.
 
 | Layer | Files | Rule |
 |---|---|---|
-| Pure domain core | `src/casino_royale_1967/{coordination_farce,dispatch_chaos,spoof_analyzer}.py`, `src/casino_royale_1967/figures/` | stdlib + numpy/matplotlib only; **no** `infrastructure.*`, **no** `bond_api` imports; importable standalone |
+| Pure domain core | `src/casino_royale_1967/{coordination_farce,dispatch_chaos,spoof_analyzer,identity_confusion,baccarat_table,escalation_ladder}.py`, `src/casino_royale_1967/figures/` | stdlib + numpy/matplotlib only; **no** `infrastructure.*`, **no** `bond_api` imports; importable standalone |
 | Protocol adapter | `src/casino_royale_1967/mission.py` | the single module constructing FROZEN `bond_api` types |
 | Manuscript | `src/casino_royale_1967/manuscript_variables.py` | token hydration, strict resolved-tree writer |
 | Scripts | `scripts/mission.py`, `scripts/z_generate_manuscript_variables.py` | thin CLI wrappers (sys.path bootstrap + argv forwarding), `# noqa: E402` on bootstrap lines |
@@ -57,7 +57,9 @@ nothing in `src` imports `infrastructure.*` at all
 ## Testing requirements
 
 - **Per concept module** a real-data test file: `test_coordination_farce.py`,
-  `test_dispatch_chaos.py`, `test_spoof_analyzer.py`.
+  `test_dispatch_chaos.py`, `test_spoof_analyzer.py`,
+  `test_identity_confusion.py`, `test_baccarat_table.py`,
+  `test_escalation_ladder.py`.
 - `test_mission.py` — protocol conformance, deterministic outcome + registry
   + serialization round-trips + slug discovery against the real `bond_api`.
 - `test_manuscript_variables.py` — token map plus the **live cross-reference

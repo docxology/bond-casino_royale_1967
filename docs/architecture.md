@@ -17,7 +17,7 @@ src/casino_royale_1967/figures/plots.py                                         
 Dependencies flow one way. Nothing imports `infrastructure.*`. Only
 `mission.py` imports `bond_api`.
 
-## The three concepts
+## The six concepts
 
 1. **coordination_farce.py** — `Agent` / `Task` / `Assignment` dataclasses,
    the five-Bond `AGENT_ROSTER` and `TASK_CATALOG`, `analyze_assignments`
@@ -29,6 +29,13 @@ Dependencies flow one way. Nothing imports `infrastructure.*`. Only
 3. **spoof_analyzer.py** — `REAL_OPS_RULES`, `SPOOF_MARKERS`,
    `OXYMORON_PAIRS`, `CANONICAL_SPOOF_DOCTRINE`, `analyze_doctrine`
    (marker + inversion + oxymoron scoring, normalised spoof index).
+4. **identity_confusion.py** — feature-vector softmax confusion matrix,
+   Shannon entropy / mutual information / NMI, and Bayesian sighting
+   resolution (`analyze_identity`, `resolve_identity`).
+5. **baccarat_table.py** — hand valuation, draw rules, exact infinite-deck
+   deal odds, and the birthday-bound `hand_collision_probability`.
+6. **escalation_ladder.py** — absorbing Markov chain: fundamental matrix,
+   expected absorption times, spectral radius, `compare_doctrines`.
 
 ## How to add a concept
 

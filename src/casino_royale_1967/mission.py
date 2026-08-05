@@ -1,20 +1,31 @@
 """FIVE 00s — the Casino Royale (1967) MissionProvider for BOND-API.
 
 Thin adapter between the pure domain core (``coordination_farce``,
-``dispatch_chaos``, ``spoof_analyzer``) and the FROZEN ``bond_api`` protocol.
-Discovery contract: a top-level module named by slug exposing
+``dispatch_chaos``, ``spoof_analyzer``, ``identity_confusion``,
+``baccarat_table``, ``escalation_ladder``) and the FROZEN ``bond_api``
+protocol. Discovery contract: a top-level module named by slug exposing
 ``mission.MissionProvider`` (film slug ``casino_royale_1967``).
 
-The three domain modules never import ``bond_api`` — they stay importable if
-the path dependency fails; this module is the only place the protocol types
-are constructed.
+The domain modules never import ``bond_api`` — they stay importable if the
+path dependency fails; this module is the only place the protocol types are
+constructed.
+
+Public shape is stable for downstream consumers (bond-cli, the coordinator,
+the orchestrator): the ``MissionProvider`` five-stage lifecycle, the
+module-level ``GADGETS`` map, ``GADGET_REGISTRY``, and the
+``register_gadgets`` hook are unchanged. Phase 4 deepens INSIDE: richer
+objectives, more recon findings, more plan steps, and a wider results +
+gadget payload.
 
 Gadgets (registered with :class:`bond_api.registry.GadgetRegistry`):
 
 * ``roster`` — the five-Bond agent roster (JSON-safe dicts);
 * ``coordination`` — the canonical coordination report;
 * ``dispatch`` — the canonical dispatch report;
-* ``doctrine`` — the canonical doctrine report.
+* ``doctrine`` — the canonical doctrine report;
+* ``identity`` — the canonical identity-confusion report;
+* ``baccarat`` — the canonical table-odds + collision report;
+* ``escalation`` — the canonical escalation-ladder doctrine comparison.
 """
 
 from __future__ import annotations
@@ -38,6 +49,12 @@ from bond_api.protocol import (
 )
 from bond_api.registry import GadgetRegistry
 
+from casino_royale_1967.baccarat_table import (
+    CANONICAL_TABLE_BONDS,
+    deal_outcome_probabilities,
+    hand_collision_probability,
+    hand_total_probabilities,
+)
 from casino_royale_1967.coordination_farce import (
     AGENT_ROSTER,
     DEFAULT_ASSIGNMENTS,
@@ -49,6 +66,8 @@ from casino_royale_1967.dispatch_chaos import (
     DispatchViolation,
     simulate_dispatch,
 )
+from casino_royale_1967.escalation_ladder import compare_doctrines
+from casino_royale_1967.identity_confusion import analyze_identity
 from casino_royale_1967.spoof_analyzer import (
     CANONICAL_SPOOF_DOCTRINE,
     analyze_doctrine,
@@ -73,19 +92,25 @@ _MISSION_OBJECTIVES: tuple[str, ...] = (
     "model coordination failure across the five overlapping Bonds",
     "simulate dispatch chaos and protocol violations deterministically",
     "analyze the spoof ops doctrine and quantify its deviation",
+    "quantify identity confusion and resolve dispatch sightings by Bayes",
+    "derive exact baccarat table odds and the five-Bond table collision",
+    "model doctrine escalation as an absorbing Markov chain",
 )
 
 
 def _input_fingerprint() -> str:
     """Deterministic sha256 over the canonical mission inputs.
 
-    Built from the default assignments, chaos orders, and spoof doctrine so
-    outcome provenance can be audited without re-running the film.
+    Built from the canonical assignments, chaos orders, spoof doctrine,
+    identity tasks, table composition, and ladder matrices so outcome
+    provenance can be audited without re-running the film.
     """
     payload = {
         "assignments": [(a.agent_id, a.task_id, a.priority) for a in DEFAULT_ASSIGNMENTS],
         "orders": [(o.order_id, o.agent_id, o.task_id, o.priority, o.issued_tick) for o in CHAOS_ORDERS],
         "doctrine": list(CANONICAL_SPOOF_DOCTRINE),
+        "identity_task": "smersh_hq",
+        "table_bonds": CANONICAL_TABLE_BONDS,
         "seed": SEED,
     }
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
@@ -177,6 +202,50 @@ def _doctrine_payload() -> dict[str, Any]:
     }
 
 
+def _identity_payload() -> dict[str, Any]:
+    """JSON-safe canonical identity-confusion report."""
+    report = analyze_identity()
+    return {
+        "prior_entropy": report.prior_entropy,
+        "codename_entropy": report.codename_entropy,
+        "conditional_entropy": report.conditional_entropy,
+        "routing_entropy": report.routing_entropy,
+        "mutual_information": report.mutual_information,
+        "normalized_mutual_information": report.normalized_mutual_information,
+        "identity_ambiguity_bits": report.conditional_entropy,
+        "resolution": report.resolution.resolution,
+        "resolution_confidence": report.resolution.confidence,
+    }
+
+
+def _baccarat_payload() -> dict[str, Any]:
+    """JSON-safe canonical table-odds + collision analysis."""
+    odds = deal_outcome_probabilities()
+    collision = hand_collision_probability(CANONICAL_TABLE_BONDS)
+    return {
+        "table_bonds": CANONICAL_TABLE_BONDS,
+        "player_probability": odds.player_probability,
+        "banker_probability": odds.banker_probability,
+        "tie_probability": odds.tie_probability,
+        "banker_advantage": odds.banker_probability - odds.player_probability,
+        "hand_collision_probability": collision,
+        "hand_totals": list(hand_total_probabilities()),
+    }
+
+
+def _escalation_payload() -> dict[str, Any]:
+    """JSON-safe canonical doctrine escalation comparison."""
+    comparison = compare_doctrines()
+    return {
+        "spoof_index": comparison.spoof_index,
+        "sanctioned_index": comparison.sanctioned_index,
+        "acceleration_factor": comparison.acceleration_factor,
+        "spoof_expected_absorption": list(comparison.spoof_report.expected_absorption),
+        "sanctioned_expected_absorption": list(comparison.sanctioned_report.expected_absorption),
+        "absorbing_state": comparison.spoof_report.absorbing_state,
+    }
+
+
 GADGETS: dict[str, Any] = {
     "roster": [
         {
@@ -191,6 +260,9 @@ GADGETS: dict[str, Any] = {
     "coordination": _coordination_payload(),
     "dispatch": _dispatch_payload(),
     "doctrine": _doctrine_payload(),
+    "identity": _identity_payload(),
+    "baccarat": _baccarat_payload(),
+    "escalation": _escalation_payload(),
 }
 
 
@@ -224,7 +296,7 @@ class MissionProvider:  # noqa: N801 — class name fixed by the discovery contr
     film = FILM
 
     def brief(self) -> MissionBrief:
-        """Declare the FIVE 00s mission: three objectives, two assets."""
+        """Declare the FIVE 00s mission: six objectives, four assets."""
         return MissionBrief(
             film=self.film,
             codename=CODENAME,
@@ -246,6 +318,22 @@ class MissionProvider:  # noqa: N801 — class name fixed by the discovery contr
                         "source": "Casino Royale (1967) standing orders",
                     },
                 ),
+                Asset(
+                    kind="table",
+                    name="casino_table",
+                    payload={
+                        "bonds": CANONICAL_TABLE_BONDS,
+                        "game": "chemin de fer baccarat",
+                    },
+                ),
+                Asset(
+                    kind="ladder",
+                    name="escalation_ladder",
+                    payload={
+                        "states": len(compare_doctrines().spoof_report.states),
+                        "absorbing": "catastrophe",
+                    },
+                ),
             ),
             constraints=(
                 Constraint(
@@ -260,10 +348,13 @@ class MissionProvider:  # noqa: N801 — class name fixed by the discovery contr
         )
 
     def recon(self, request: ReconRequest) -> ReconReport:
-        """Survey the goal and the three concept analyses."""
+        """Survey the goal and the six concept analyses."""
         coordination = analyze_assignments(DEFAULT_ASSIGNMENTS)
         dispatch = simulate_dispatch(CHAOS_ORDERS)
         doctrine = analyze_doctrine(CANONICAL_SPOOF_DOCTRINE)
+        identity = analyze_identity()
+        odds = deal_outcome_probabilities()
+        escalation = compare_doctrines()
         return ReconReport(
             findings=(
                 Finding(label="goal", detail=request.goal),
@@ -283,11 +374,23 @@ class MissionProvider:  # noqa: N801 — class name fixed by the discovery contr
                     label="doctrine",
                     detail=f"spoof index {doctrine.spoof_index:.1f} / 100",
                 ),
+                Finding(
+                    label="identity",
+                    detail=f"routing NMI {identity.normalized_mutual_information:.3f}; sighting resolved to {identity.resolution.resolution}",
+                ),
+                Finding(
+                    label="table",
+                    detail=f"banker {odds.banker_probability:.3f} vs player {odds.player_probability:.3f}, five-Bond hand collision {hand_collision_probability(CANONICAL_TABLE_BONDS):.3f}",
+                ),
+                Finding(
+                    label="escalation",
+                    detail=f"spoof doctrine reaches catastrophe in {escalation.spoof_index:.1f} steps (sanctioned: {escalation.sanctioned_index:.1f})",
+                ),
             )
         )
 
     def plan(self, brief: MissionBrief) -> MissionPlan:
-        """Plan the three deterministic steps, one per concept module."""
+        """Plan the six deterministic steps, one per concept module."""
         return MissionPlan(
             steps=(
                 Step(
@@ -305,17 +408,35 @@ class MissionProvider:  # noqa: N801 — class name fixed by the discovery contr
                     action="analyze_doctrine",
                     params={"directives": brief.assets[1].name},
                 ),
+                Step(
+                    name="identity",
+                    action="analyze_identity",
+                    params={"task": "smersh_hq"},
+                ),
+                Step(
+                    name="table",
+                    action="deal_outcome_probabilities",
+                    params={"table": brief.assets[2].name},
+                ),
+                Step(
+                    name="escalation",
+                    action="compare_doctrines",
+                    params={"ladder": brief.assets[3].name},
+                ),
             )
         )
 
     def execute(self, plan: MissionPlan) -> MissionOutcome:
-        """Run the plan's three analyses and return a deterministic outcome."""
+        """Run the plan's analyses and return a deterministic outcome."""
         steps_completed = tuple(step.name for step in plan.steps)
         results: dict[str, Any] = {
             "steps_completed": steps_completed,
             "coordination": _coordination_payload(),
             "dispatch": _dispatch_payload(),
             "doctrine": _doctrine_payload(),
+            "identity": _identity_payload(),
+            "baccarat": _baccarat_payload(),
+            "escalation": _escalation_payload(),
         }
         return MissionOutcome(
             success=True,
@@ -333,10 +454,16 @@ class MissionProvider:  # noqa: N801 — class name fixed by the discovery contr
         coordination = outcome.results["coordination"]
         dispatch = outcome.results["dispatch"]
         doctrine = outcome.results["doctrine"]
+        identity = outcome.results["identity"]
+        baccarat = outcome.results["baccarat"]
+        escalation = outcome.results["escalation"]
         return Debrief(
             outcome=outcome,
             lessons=(
                 "five agents sharing one codename guarantees overlap loss",
+                f"identity confusion costs {identity['identity_ambiguity_bits']:.2f} bits per dispatch",
+                f"a {baccarat['table_bonds']}-Bond table collides on a hand total with probability {baccarat['hand_collision_probability']:.2f}",
+                f"the spoof doctrine escalates {escalation['acceleration_factor']:.1f}x faster than discretion",
                 f"coordination loss stays {coordination['loss']} until discipline",
                 f"dispatch protocol rejected {dispatch['rejected']} of {dispatch['total_orders']} orders",
                 "single-agent discipline removes every overlap",

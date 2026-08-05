@@ -18,23 +18,33 @@ claim about the film's production history or intent.
 
 ## Related work
 
-The work sits at the intersection of three research threads:
+The work sits at the intersection of several research threads:
 
 - **Multi-agent coordination and conflict.** The overlap/conflict detection
-  follows the classic line of research on coordination problems in
-  multi-agent systems, where redundant or duplicative agents degrade system
-  performance. The weighted-loss formulation is a small, reproducible
-  instance of that family.
+  follows the classic line of research on coordination failure in multi-agent
+  systems, where redundant or duplicative agents degrade system performance.
+  The weighted-loss formulation is a small, reproducible instance of that
+  family.
+- **Information theory of identity.** The identity-confusion model applies
+  Shannon's entropy and mutual information to quantify how much identity a
+  shared codename destroys; the Bayesian resolution is a standard posterior
+  update over the roster (Shannon 1948).
 - **Deterministic simulation and protocol verification.** The dispatch
   simulator's rule-checker mirrors property-based protocol enforcement: each
   order is checked against a fixed rule set, and violations are recorded as
-  first-class data — the same discipline used in lightweight runtime
-  verification.
+  first-class data.
+- **Gambling mathematics.** The baccarat table's deal odds reproduce the
+  canonical published figures of the chemin de fer drawing rules; the
+  hand-collision metric is a birthday-bound application over the exact
+  two-card-total distribution (Ethier 2010; Wizard of Odds). Single-deck
+  play under the standard table is known to invert the banker edge — why
+  casinos deal six to eight decks.
+- **Absorbing Markov chains.** The escalation ladder's fundamental matrix and
+  expected absorption times follow Kemeny and Snell's classical treatment.
 - **Reproducible computational research.** The project ships live-computed
-  manuscript metrics, deterministic artifacts, and a frozen protocol adapter,
-  following the template's reproducibility and zero-mock standards.
+  manuscript metrics, deterministic artifacts, and a frozen protocol adapter.
 
 The *Casino Royale* (1967) material itself is in the public cultural
 domain; this project uses its plot beats (baccarat championship, SMERSH
-headquarters, the gamma-ray projector, Mata Bond) as a satirical dataset, not
-as a claim about the film.
+headquarters, the gamma-ray projector, Mata Bond, the five-Bond premise) as a
+satirical dataset, not as a claim about the film.

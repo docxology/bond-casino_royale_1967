@@ -2,6 +2,39 @@
 
 Build & maintenance state for this PROJECT BOND film package.
 
+## Done (phase 4 — deep improvement)
+
+- [x] `src/casino_royale_1967/identity_confusion.py` — information-theoretic
+      identity model: feature-vector softmax confusion matrix, Shannon
+      entropy / conditional entropy / mutual information / NMI, and Bayesian
+      sighting resolution. Canonical: routing NMI 0.075, identity ambiguity
+      2.13 bits, sighting resolves to `bond_cooper` (confidence 0.613).
+- [x] `src/casino_royale_1967/baccarat_table.py` — exact baccarat
+      (chemin de fer) table: hand/draw rules, infinite-deck deal odds that
+      reproduce the canonical published figures (player 0.4461, banker
+      0.4584, tie 0.0954; Wizard of Odds / Ethier), and the five-Bond
+      hand-collision birthday metric (0.704).
+- [x] `src/casino_royale_1967/escalation_ladder.py` — doctrine as an
+      absorbing Markov chain: fundamental matrix `(I-Q)^{-1}`, expected
+      absorption times, spectral radius; the spoof doctrine reaches
+      catastrophe in 4.0 steps vs 56.0 under discipline (14.0x faster).
+- [x] Mission deepened inside (public shape unchanged): six objectives, four
+      assets, six plan steps, six results payloads, seven gadgets
+      (+ `identity`, `baccarat`, `escalation`); still a FROZEN
+      `MissionProvider` for bond-cli / coordinator / orchestrator.
+- [x] Manuscript variables: new `RESULT_IDENTITY_*`, `RESULT_BACCARAT_*`,
+      `RESULT_TABLE_*`, `RESULT_ESCALATION_*` and `CONFIG_TABLE_BONDS` tokens.
+- [x] Three new figures: `identity_confusion.png`, `baccarat_odds.png`,
+      `escalation_ladder.png` (six total).
+- [x] Tests: `test_identity_confusion.py`, `test_baccarat_table.py`,
+      `test_escalation_ladder.py` plus mission/vars/figures/scripts updates;
+      baccarat is cross-validated against an independent brute-force
+      reference. 182 tests, ~99.8% coverage on `src/`.
+- [x] Manuscript: methodology (sections 4-6), results (identity / table /
+      escalation), conclusion, abstract, setup, reproducibility, scope, and
+      `references.bib` (Shannon 1948, Kemeny-Snell 1960, Ethier 2010,
+      Wizard of Odds) updated.
+
 ## Done (phase 2)
 
 - [x] `src/casino_royale_1967/coordination_farce.py` — five-Bond

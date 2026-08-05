@@ -16,9 +16,12 @@ Local-only working tree inside the BOND suite
 | `src/casino_royale_1967/coordination_farce.py` | Five-Bond **coordination-failure model**: overlap + conflict detection, clearance violations, weighted loss, single-agent deduplication |
 | `src/casino_royale_1967/dispatch_chaos.py` | **Dispatch chaos simulation**: tick-based dispatch centre enforcing five protocol rules (exclusive tasks, clearance, double-booking, duplicate orders, duplicate codenames) |
 | `src/casino_royale_1967/spoof_analyzer.py` | **Spoof protocol analyzer**: lexical scoring of satirical ops doctrine against a sane protocol, with a normalised spoof index |
+| `src/casino_royale_1967/identity_confusion.py` | **Identity-confusion model**: softmax routing confusion matrix, entropy / mutual information / NMI, Bayesian sighting resolution |
+| `src/casino_royale_1967/baccarat_table.py` | **Baccarat table model**: exact deal odds (canonical player/banker/tie figures) and the five-Bond hand-collision birthday metric |
+| `src/casino_royale_1967/escalation_ladder.py` | **Escalation-ladder model**: doctrine as an absorbing Markov chain — fundamental matrix, expected absorption, spoof-vs-sanctioned comparison |
 | `src/casino_royale_1967/mission.py` | Thin `bond_api` `MissionProvider` adapter (slug `casino_royale_1967`, codename **FIVE 00s**) + gadget registry |
 
-All three domain modules are pure (stdlib + numpy only) and importable even
+The six domain modules are pure (stdlib + numpy only) and importable even
 if the `bond-api` path dependency fails; `mission.py` is the only module that
 constructs `bond_api` protocol types.
 

@@ -18,8 +18,11 @@ figure_types:
   - coordination_farce
   - dispatch_chaos
   - spoof_analyzer
+  - identity_confusion
+  - baccarat_odds
+  - escalation_ladder
 citation_policy: official_or_scholarly
-source_policy: "Sourced numeric claims trace to src/casino_royale_1967 or manuscript/config.yaml; no published external DOI (local-only tree)."
+source_policy: "Sourced numeric claims trace to src/casino_royale_1967 or manuscript/config.yaml; no published external DOI (local-only tree); baccarat odds cite Ethier 2010 / Wizard of Odds."
 review_gates:
   - determinism
   - protocol_conformance
