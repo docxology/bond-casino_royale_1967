@@ -64,6 +64,6 @@ Re-run with the sandbox disabled.
 
 ## Scope boundary
 
-This package is local-only and has no remote. Work stays inside
-`projects/working/bond/casino_royale_1967/` — never a sibling BOND package,
-never the bond root files, never the template repo. Commit here, push nowhere.
+Work stays inside this package directory — never a sibling BOND package,
+never the bond root files, never the template repo. Commit and push only this
+repo (`github.com/docxology/bond-casino_royale_1967`).

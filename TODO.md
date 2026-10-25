@@ -282,8 +282,9 @@ Recorded so nobody re-litigates them. None of these is a TODO item.
   `tests/test_regeneration_determinism.py` regenerates the tree twice through
   the production script and diffs the bytes.
 
-- **Local-only, no DOI, no remote.** This tree is never pushed. Do not add
-  Zenodo/GitHub location fields to the sidecars (`STANDALONE.md:62-63`).
+- **No DOI.** The tree is pushed to
+  `github.com/docxology/bond-casino_royale_1967` but is not registered with
+  Zenodo, so no DOI belongs in the sidecars (see `STANDALONE.md`).
 
 - **The `bond_api` surface is FROZEN.** `MissionProvider`, the five stage
   methods, `GADGETS`, `GADGET_REGISTRY` and `register_gadgets` cannot change
@@ -300,8 +301,7 @@ Recorded so nobody re-litigates them. None of these is a TODO item.
 
 ## Verification
 
-The gate for this package, run from the package root
-(`projects/working/bond/casino_royale_1967`):
+The gate for this package, run from the repository root:
 
 ```bash
 uv sync --all-extras
@@ -316,12 +316,23 @@ git status --short
 
 | Command | Expected |
 |---|---|
-| `pytest … --cov-fail-under=90` | `238 passed`, `TOTAL … 100.00%`, "Required test coverage of 90% reached" |
+| `pytest … --cov-fail-under=90` | every test passes, `TOTAL … 100.00%`, "Required test coverage of 90% reached" |
 | `ruff check` | `All checks passed!` |
 | `ruff format --check` | `26 files already formatted` |
 | `mypy src/ scripts/` | `Success: no issues found in 14 source files` |
 | mock grep | no matches (prints `Clean`) |
 | `git status --short` | empty after commit |
+
+**Caveat (checked 2026-10-25):** the `ruff`/`mypy` expectations assume the BOND
+workspace root configuration the package was scaffolded under, which is not
+part of this repository (there is no `[tool.ruff]` section in `pyproject.toml`).
+Run against tool defaults, the same sources report 28 `ruff` hits — `RUF022`,
+`I001`, `RUF100`, `EXE001`, `B023`, `B033`, `TRY004`, `PLW1510` — and 21 files
+`ruff format` would restyle; mypy 2.4.0 (the lock pins 2.3.0) reports one
+`unused-ignore` at `identity_confusion.py:158`. The lint/format rows above are
+therefore not reproducible here until a `[tool.ruff]` section or a reformat
+lands; the mock grep, the layer-contract import gate and the 90% coverage floor
+are unaffected.
 
 Artifact regeneration (writes only under the git-ignored `output/`):
 

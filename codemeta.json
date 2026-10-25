@@ -13,8 +13,8 @@
       "givenName": "Daniel Ari"
     }
   ],
-  "codeRepository": "local (projects/working/bond/casino_royale_1967)",
-  "dateModified": "2026-08-04",
+  "codeRepository": "https://github.com/docxology/bond-casino_royale_1967",
+  "dateModified": "2026-10-25",
   "keywords": [
     "multi-agent coordination",
     "coordination failure",

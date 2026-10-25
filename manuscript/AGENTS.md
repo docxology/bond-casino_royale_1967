@@ -4,7 +4,7 @@ type: "manuscript_guide"
 version: "0.1.0"
 ---
 
-# Manuscript (`projects/working/bond/casino_royale_1967/manuscript/`)
+# Manuscript (`manuscript/`)
 
 Repository-wide behavioral rules live in [`../docs/agent_instructions.md`](../docs/agent_instructions.md).
 This file covers **manuscript-specific** editing for the FIVE 00s package.

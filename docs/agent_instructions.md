@@ -1,14 +1,14 @@
 # Agent Instructions — Casino Royale (1967) · FIVE 00s
 
-Read this before modifying any file in
-`projects/working/bond/casino_royale_1967/`. These are hard constraints, not
-suggestions.
+Read this before modifying any file in this repository
+(`github.com/docxology/bond-casino_royale_1967`). These are hard constraints,
+not suggestions.
 
 ## Rule 1 — Scope is exactly this package
 
 Work only inside this package directory. Do not touch sibling BOND packages,
-bond root files, or the template repo. The tree is **local-only** — there is no
-remote and nothing is ever pushed. Commit inside this repo only.
+bond root files, or the template repo. Commit inside this repo only, which is
+tracked at `github.com/docxology/bond-casino_royale_1967`.
 
 ## Rule 2 — Zero mocks
 

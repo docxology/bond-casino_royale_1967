@@ -1,18 +1,21 @@
 # AGENTS.md — Casino Royale (1967) · FIVE 00s
 
-**This is an active PROJECT BOND film package** in the BOND suite
-(`projects/working/bond/casino_royale_1967`), built under the shared Bond
-guardrail preamble. It models the coordination farce of the 1967 *Casino
-Royale* — five operatives, one codename — as deterministic mission software,
-exposed through the FROZEN `bond_api` `MissionProvider` protocol.
+**This is an active PROJECT BOND film package**, drafted in the BOND suite as
+`projects/working/bond/casino_royale_1967` and tracked at
+`github.com/docxology/bond-casino_royale_1967`. It is built under the shared
+Bond guardrail preamble and models the coordination
+farce of the 1967 *Casino Royale* — five operatives, one codename — as
+deterministic mission software, exposed through the FROZEN `bond_api`
+`MissionProvider` protocol.
 
 ## Scope and hard constraints
 
 - **Scope is exactly this package directory** (`src/casino_royale_1967/`,
   `scripts/`, `tests/`, `manuscript/`, docs, metadata). Never touch sibling
   packages, bond root files, or the template repo.
-- **Local-only working tree.** No remote, never push. Path-scoped commits
-  inside this repo only (`git add -A` here).
+- **Repo-scoped commits.** The tree is tracked at
+  `github.com/docxology/bond-casino_royale_1967`; commit inside this repo only
+  (`git add -A` here).
 - **Zero mocks.** Real computation + real protocol types only — no
   `MagicMock` / `mocker.patch` / `unittest.mock`.
 - **≥90% line+branch coverage on `src/`** (`uv run pytest tests/

@@ -6,8 +6,8 @@ catastrophe in the shape of a blockbuster. **FIVE 00s** models that farce
 rigorously and deterministically, then exposes it through the frozen
 `bond_api` mission protocol.
 
-Local-only working tree inside the BOND suite
-(`projects/working/bond/casino_royale_1967`): no remote, never pushed.
+Tracked at <https://github.com/docxology/bond-casino_royale_1967>; drafted
+inside the BOND suite as `projects/working/bond/casino_royale_1967`.
 
 ## Film → software
 
@@ -85,6 +85,10 @@ uv run mypy src/ scripts/
 The coverage gate is **≥90% line + branch on `src/`**; the suite currently runs
 well above it. Run the command for the current figure rather than trusting a
 number written here — this file is not regenerated.
+
+`bond-api` is bound in `[tool.uv.sources]` to a local checkout
+(`pyproject.toml`), not to an index; `uv sync` resolves it from disk, so that
+checkout has to exist before the suite can import `bond_api`.
 
 If a command fails with `Failed to initialize cache`, that is a sandbox
 restriction on `uv`'s cache directory, not a package failure.

@@ -15,7 +15,7 @@ keywords:
 - reproducible research
 license: MIT
 message: If you use this software, please cite it using the metadata from this file.
-repository-code: local (projects/working/bond/casino_royale_1967)
+repository-code: 'https://github.com/docxology/bond-casino_royale_1967'
 title: 'Casino Royale: FIVE 00s — Special-Agent Mission Software'
 type: software
 version: 0.1.0

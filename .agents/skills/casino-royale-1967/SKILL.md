@@ -9,8 +9,8 @@ tags: [bond, film-package, multi-agent-coordination, deterministic, bond-api]
 
 # casino-royale-1967
 
-Project-scoped skill for the FIVE 00s package at
-`projects/working/bond/casino_royale_1967/`. Load when working inside the
+Project-scoped skill for the FIVE 00s package
+(`github.com/docxology/bond-casino_royale_1967`). Load when working inside the
 package.
 
 ## When to Use
@@ -54,7 +54,9 @@ uv run python scripts/z_generate_manuscript_variables.py  # tokens + resolved tr
   `bond_api` — only `mission.py` adapts to the frozen protocol.
 - **No mocks.** All tests use real computation + real `bond_api` types.
 - **Determinism.** Domain artifacts must be byte-reproducible (seed 7, no
-  wall clock). The only wall-clock value is the `GENERATION_TIMESTAMP` token.
+  wall clock anywhere). `generate_variables` takes no `now=`: the manuscript's
+  date and Python range come from committed `paper.date` /
+  `paper.python_requires` in `manuscript/config.yaml`.
 - **Metrics injected, never hand-authored.** Reference manuscript numbers as
   `{{TOKEN}}`s; the live cross-reference test enforces completeness.
 - **`uv sync --extra dev` before pytest** after any pyproject change (the
