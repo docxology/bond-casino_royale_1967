@@ -323,16 +323,15 @@ git status --short
 | mock grep | no matches (prints `Clean`) |
 | `git status --short` | empty after commit |
 
-**Caveat (checked 2026-10-25):** the `ruff`/`mypy` expectations assume the BOND
-workspace root configuration the package was scaffolded under, which is not
-part of this repository (there is no `[tool.ruff]` section in `pyproject.toml`).
-Run against tool defaults, the same sources report 28 `ruff` hits — `RUF022`,
-`I001`, `RUF100`, `EXE001`, `B023`, `B033`, `TRY004`, `PLW1510` — and 21 files
-`ruff format` would restyle; mypy 2.4.0 (the lock pins 2.3.0) reports one
-`unused-ignore` at `identity_confusion.py:158`. The lint/format rows above are
-therefore not reproducible here until a `[tool.ruff]` section or a reformat
-lands; the mock grep, the layer-contract import gate and the 90% coverage floor
-are unaffected.
+**Caveat (checked 2026-10-25):** the `ruff`/`mypy` rows above do not reproduce
+with the versions this repo pins — `uv.lock` holds ruff 0.16.1 and mypy 2.3.0.
+The pinned ruff, run isolated or not, reports 28 hits over the same sources —
+`RUF022`, `I001`, `RUF100`, `EXE001`, `B023`, `B033`, `TRY004`, `PLW1510` — and
+21 files `ruff format` would restyle; ruff 0.17.2 agrees, and mypy 2.4.0
+reports one `unused-ignore` at `identity_confusion.py:158`. No `[tool.ruff]`
+section ships in this repository, so only tool defaults apply: re-establish one
+(or accept a reformat) before trusting an "all clean" claim. The mock grep, the
+layer-contract import gate and the 90% coverage floor are unaffected.
 
 Artifact regeneration (writes only under the git-ignored `output/`):
 
