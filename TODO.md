@@ -143,6 +143,38 @@ Claims that are true today but are not bound by a test that can fail.
 - **Command:** `uv run pytest tests/test_baccarat_table.py -v` plus a manual
   re-read of `manuscript/07_scope_and_related_work.md:41-46`.
 
+#### V6 — The pinned `ruff` gate is red, and the recorded caveat reproduces exactly
+
+- **What is wrong:** the two `ruff` rows of "## Verification" below do not hold
+  for this tree. Measured 2026-11-03 against the `origin/main` bytes of
+  `8aa4e7d`, with the pinned `ruff 0.16.1` taken from this repository's own
+  venv:
+
+  | Command | Result |
+  |---|---|
+  | `ruff check src/ scripts/ tests/` | `Found 28 errors` — RUF100 ×11, RUF022 ×8, PLW1510 ×2, I001 ×2, EXE001 ×2, TRY004, B033, B023; 21 fixable |
+  | `ruff check src/ scripts/` (`AGENTS.md` scope) | `Found 22 errors` — RUF100 ×9, RUF022 ×8, EXE001 ×2, TRY004, I001, B023 |
+  | `ruff format --check src/ scripts/ tests/` | `21 files would be reformatted, 9 files already formatted` |
+  | `ruff format --check src/ scripts/` | `10 files would be reformatted, 6 files already formatted` |
+  | `mypy src/ scripts/` | clean, 14 files (mypy 2.3.0) |
+
+  This is neither new debt nor drift: the **Caveat (checked 2026-10-25)** in the
+  same section named *28 hits* on the same eight rules and *21 files* for
+  `ruff format` over the same scope, and both reproduce exactly here. The
+  `pytest` and `mypy` rows do hold; what stays open is the lint half of the
+  caveat, which the suite cannot see. No `[tool.ruff]` section ships, so only
+  tool defaults apply, and the two scopes above differ only by `tests/`.
+- **Files:** 28 findings across `src/`, `scripts/` and `tests/`;
+  `ruff check --output-format=concise` prints `file:line:code` for every one.
+  Both `EXE001` findings are mode-only (`scripts/*.py`), the two `PLW1510` and
+  the `B033` are in `tests/`.
+- **Done looks like:** either a `[tool.ruff]` section that states the intended
+  rule set and line length, after which the tree is brought to it (one rule per
+  commit, behaviour-changing suppressions carrying their reason), or an
+  explicit decision to accept the reformat on the record. The gate is the
+  pinned `ruff` from `uv.lock`, not whichever `ruff` is first on `PATH`.
+- **Command:** `uv run --extra dev ruff check src/ scripts/ tests/ && uv run --extra dev ruff format --check src/ scripts/ tests/`
+
 ### Documentation
 
 #### D1 — "33 BOND packages" does not match the tree
