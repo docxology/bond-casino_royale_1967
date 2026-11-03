@@ -24,7 +24,7 @@
 - **Known state: the `bond-api` path dependency in `pyproject.toml` is an absolute path on another
   machine** (`/Users/4d/...`), so `uv sync --extra dev` cannot resolve it anywhere but there. That is
   a defect in the declaration, not in the core, which still imports and tests without it.
-- **Publishing state as observed**: the tree is tracked at the private mirror
+- **Publishing state as observed**: the tree is tracked at
   `github.com/docxology/bond-casino_royale_1967` on `main`; the BOND suite copy at
   `projects/working/bond/casino_royale_1967` has no remote of its own. Nothing in `src/` should claim
-  the module repository is unpublished.
+  the module repository lacks its own remote.
