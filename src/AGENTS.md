@@ -21,9 +21,10 @@
   committed files. Never add a `now=` parameter with a wall-clock default.
 - **Coverage floor: 90% line and branch on `src/`** (`uv run pytest tests/ --cov=src
   --cov-fail-under=90`).
-- **Known state: the `bond-api` path dependency in `pyproject.toml` is an absolute path on another
-  machine** (`/Users/4d/...`), so `uv sync --extra dev` cannot resolve it anywhere but there. That is
-  a defect in the declaration, not in the core, which still imports and tests without it.
+- **`bond-api` path dependency: the sibling-relative form.** `pyproject.toml` declares
+  `bond-api = { path = "../bond-api" }`, so `uv sync --extra dev` resolves from a checkout of the
+  suite. It previously named an absolute path on the author's machine, which is why this package
+  could not install anywhere else. `uv.lock` is generated from that declaration — never hand-edit it.
 - **Publishing state as observed**: the tree is tracked at
   `github.com/docxology/bond-casino_royale_1967` on `main`; the BOND suite copy at
   `projects/working/bond/casino_royale_1967` has no remote of its own. Nothing in `src/` should claim
