@@ -14,7 +14,7 @@ paper:
   # committed here precisely so no artifact reads a clock or the running
   # interpreter — that is what makes regeneration byte-for-byte.
   date: "2026-08-04"
-  python_requires: ">=3.10"
+  python_requires: ">=3.11"
 
 authors:
   - name: "Daniel Ari Friedman"
