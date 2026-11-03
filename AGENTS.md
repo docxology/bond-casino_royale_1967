@@ -57,7 +57,7 @@ under the same conditions — so the check cannot pass vacuously.
 - `pyproject.toml` binds `bond-api` as a local path dependency:
   ```toml
   [tool.uv.sources]
-  bond-api = { path = "/Users/4d/Documents/GitHub/template/projects/working/bond/bond-api" }
+  bond-api = { path = "../bond-api" }
   ```
   with `"bond-api"` in `[project] dependencies`; run `uv sync --extra dev`
   before pytest.
