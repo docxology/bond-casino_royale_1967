@@ -164,6 +164,17 @@ Claims that are true today but are not bound by a test that can fail.
   `pytest` and `mypy` rows do hold; what stays open is the lint half of the
   caveat, which the suite cannot see. No `[tool.ruff]` section ships, so only
   tool defaults apply, and the two scopes above differ only by `tests/`.
+
+  **Superseded in part (2026-11-04):** a `[tool.ruff]` section now ships —
+  `extend-exclude = ["vendor"]`, added with the `bond-api` vendoring round. It
+  states no rules and no line length, so tool defaults still apply to the same
+  scopes, and re-measured at the vendoring merge every count above reproduces
+  unchanged: `Found 22 errors` over the same rule/file set (`ruff check
+  --output-format=concise` differs from the pre-merge set by nothing), `10 files
+  would be reformatted` — the file that is now already formatted is the added
+  `scripts/vendor.py` — and `mypy` clean over 15 files, up one for that same
+  file. The options in "Done looks like" stay open; this entry is not closed by
+  that section.
 - **Files:** 28 findings across `src/`, `scripts/` and `tests/`;
   `ruff check --output-format=concise` prints `file:line:code` for every one.
   Both `EXE001` findings are mode-only (`scripts/*.py`), the two `PLW1510` and

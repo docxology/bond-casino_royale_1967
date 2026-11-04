@@ -33,8 +33,9 @@ Plus `figures/plots.py` (six deterministic figures), `manuscript_variables.py`
   blocked at the meta-path level, and carries a positive control asserting
   `mission.py` *does* fail under the same conditions.
 - `mission.py`: the single thin adapter that imports the frozen `bond_api`
-  protocol types. `pyproject.toml` binds `bond-api` via
-  `[tool.uv.sources] bond-api = { path = "..." }`.
+  protocol types. `pyproject.toml` binds `bond-api` to the copy at
+  `vendor/bond-api` via `[tool.uv.sources]`, and `scripts/vendor.py --check`
+  re-verifies that copy's recorded bytes offline.
 - `manuscript_variables.py`: token hydration plus the strict writer. It reads
   `CODENAME`, `IDENTITY` and `PACKAGE_VERSION` from the adapter at import
   time, so it needs `bond_api` importable as well — it is deliberately outside
