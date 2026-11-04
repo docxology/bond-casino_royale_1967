@@ -21,10 +21,11 @@
   committed files. Never add a `now=` parameter with a wall-clock default.
 - **Coverage floor: 90% line and branch on `src/`** (`uv run pytest tests/ --cov=src
   --cov-fail-under=90`).
-- **`bond-api` path dependency: the sibling-relative form.** `pyproject.toml` declares
-  `bond-api = { path = "../bond-api" }`, so `uv sync --extra dev` resolves from a checkout of the
-  suite. It previously named an absolute path on the author's machine, which is why this package
-  could not install anywhere else. `uv.lock` is generated from that declaration — never hand-edit it.
+- **`bond-api` path dependency: the vendored copy.** `pyproject.toml` declares
+  `bond-api = { path = "vendor/bond-api" }`, so `uv sync --extra dev` resolves from the copy in this
+  tree and needs no sibling checkout. It previously named an absolute path on the author's machine,
+  then a sibling path; both required something outside the package. `uv.lock` is generated from that
+  declaration — never hand-edit it.
 - **Publishing state as observed**: the tree is tracked at
   `github.com/docxology/bond-casino_royale_1967` on `main`; the BOND suite copy at
   `projects/working/bond/casino_royale_1967` has no remote of its own. Nothing in `src/` should claim
