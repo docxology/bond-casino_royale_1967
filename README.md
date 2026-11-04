@@ -86,9 +86,9 @@ The coverage gate is **≥90% line + branch on `src/`**; the suite currently run
 well above it. Run the command for the current figure rather than trusting a
 number written here — this file is not regenerated.
 
-`bond-api` is bound in `[tool.uv.sources]` to a local checkout
-(`pyproject.toml`), not to an index; `uv sync` resolves it from disk, so that
-checkout has to exist before the suite can import `bond_api`.
+`bond-api` is bound in `[tool.uv.sources]` to the copy at `vendor/bond-api`
+(`pyproject.toml`), not to an index; `uv sync` resolves it from disk inside this
+tree, so a standalone clone needs no sibling checkout.
 
 If a command fails with `Failed to initialize cache`, that is a sandbox
 restriction on `uv`'s cache directory, not a package failure.

@@ -54,10 +54,11 @@ under the same conditions — so the check cannot pass vacuously.
 
 ## Protocol binding (FROZEN bond-api)
 
-- `pyproject.toml` binds `bond-api` as a local path dependency:
+- `pyproject.toml` binds `bond-api` as a local path dependency, vendored at
+  `vendor/bond-api`:
   ```toml
   [tool.uv.sources]
-  bond-api = { path = "../bond-api" }
+  bond-api = { path = "vendor/bond-api" }
   ```
   with `"bond-api"` in `[project] dependencies`; run `uv sync --extra dev`
   before pytest.
