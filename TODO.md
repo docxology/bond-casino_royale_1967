@@ -389,3 +389,45 @@ Re-running these must leave `git status --short` empty.
 > **Sandbox note:** if any `uv` command fails with `Failed to initialize cache at
 > /Users/4d/.cache/uv`, that is a sandbox restriction on `uv`'s cache directory,
 > not a package failure. Re-run the identical command outside the sandbox.
+
+## Workflowz review — 2026-11-10
+
+Bounded source review (evidence packet only; no commands run). Existing open items V1–V6 are not restated; the four items below are additional and independently closable.
+
+### Correctness
+
+#### W1 — (P2) `spoof_analyzer` labels every marker hit `absolutist`, including markers the module itself does not consider absolutist
+
+- **What is wrong:** `DirectiveVerdict.flags` is documented as `"absolutist", "contradicts:<rule>", "oxymoron"` (`src/casino_royale_1967/spoof_analyzer.py:96`), and `analyze_doctrine` appends `"absolutist"` whenever `_marker_hits(text)` is non-empty (`src/casino_royale_1967/spoof_analyzer.py:199-201`). But `_marker_hits` iterates all of `SPOOF_MARKERS` (`src/casino_royale_1967/spoof_analyzer.py:139-141`), which includes `any`, `in case of doubt` and `identical` (`src/casino_royale_1967/spoof_analyzer.py:50-63`), while the module's own `_ABSOLUTIST_MARKERS` tuple omits those three (`src/casino_royale_1967/spoof_analyzer.py:113-123`). `_inverted_rules` already uses the narrower tuple (line 152), so a directive such as "The Bonds look identical." scores via a non-absolutist marker yet is publicly flagged `absolutist` — a mislabeled verdict that propagates into reports and any flag consumers.
+- **Files:** `src/casino_royale_1967/spoof_analyzer.py:50-63, 96, 113-123, 139-141, 194, 199-201`.
+- **Done looks like:** the `absolutist` flag is emitted only when a marker from `_ABSOLUTIST_MARKERS` matches (other marker hits either get a distinct, documented flag name or no absolutist flag), `DirectiveVerdict.flags` documentation matches the behaviour, and a regression test pins the non-absolutist case with a positive control (an `every`/`shoot` directive must still be flagged `absolutist`). Reuse the hits already computed at line 194 rather than calling `_marker_hits` twice only if that falls out of the fix naturally.
+- **Command:** `uv run python -c "from casino_royale_1967.spoof_analyzer import analyze_doctrine; v=analyze_doctrine('The Bonds look identical.').verdicts[0]; assert 'absolutist' not in v.flags, v.flags"` (fails today with `('absolutist',)`; passes after the fix) && `uv run pytest tests/test_spoof_analyzer.py -v` (all green, including the new positive control).
+- **Depends on / constraints:** none beyond the repo. Check flag-string consumers before renaming anything (mission payloads are built from domain reports); the FROZEN `MissionProvider` signatures and registry symbols must not change (AGENTS.md:73-76).
+
+### Maintainability
+
+#### W2 — (P3) `figures` package re-exports only three of the six per-concept renderers
+
+- **What is wrong:** `src/casino_royale_1967/figures/plots.py:53-62` declares eight public names (`render_baccarat_figure`, `render_escalation_figure`, `render_identity_figure` included), but `src/casino_royale_1967/figures/__init__.py:5-19` re-exports only `FIGURE_FILENAMES`, `render_all_figures`, `render_coordination_figure`, `render_dispatch_figure`, `render_spoof_figure`. `from casino_royale_1967.figures import render_identity_figure` therefore raises `ImportError` while its coordination sibling works — an inconsistent public surface for the six concept figures.
+- **Files:** `src/casino_royale_1967/figures/__init__.py:5-19`; `src/casino_royale_1967/figures/plots.py:53-62`.
+- **Done looks like:** all six per-concept renderers (plus `FIGURE_FILENAMES` and `render_all_figures`) are importable from `casino_royale_1967.figures` and listed in its `__all__`, or the package docstring explicitly states that only `render_all_figures` is public and trims `plots.__all__` accordingly — one consistent choice, not both.
+- **Command:** `uv run python -c "from casino_royale_1967.figures import render_identity_figure, render_baccarat_figure, render_escalation_figure; print('ok')"` (ImportError today; prints `ok` after) && `uv run pytest tests/test_figures.py -v` (green).
+- **Depends on / constraints:** none; pure re-export change, no rendering behaviour or determinism impact (Agg backend and fixed DPI untouched, `src/casino_royale_1967/figures/plots.py:27-31,74-80`).
+
+#### W3 — (P3) `scripts/mission.py` command table typed `dict[str, object]`, requiring a load-bearing `# type: ignore[operator]`
+
+- **What is wrong:** `_COMMANDS: dict[str, object]` (`scripts/mission.py:98`) holds the six `run_*` callables, so dispatch needs `return int(_COMMANDS[sys.argv[1]]())  # type: ignore[operator]` (`scripts/mission.py:112`). The suppression silences the operator check on every dispatch instead of expressing the real contract (zero-argument callables returning `int`), and would mask a future non-callable entry.
+- **Files:** `scripts/mission.py:31-105` (the six `run_*` functions all return `int`), `scripts/mission.py:98, 112`.
+- **Done looks like:** `_COMMANDS` is annotated `dict[str, Callable[[], int]]` (`from collections.abc import Callable`), the `# type: ignore[operator]` is deleted, and dispatch is unchanged behaviourally.
+- **Command:** `uv run mypy scripts/mission.py` (clean with no ignore present) && `uv run python scripts/mission.py brief` (same deterministic JSON as before) && `uv run python scripts/mission.py badcmd` (still exits 2 with usage).
+- **Depends on / constraints:** none; keep the CLI a thin wrapper per AGENTS.md:29 and do not alter the command names.
+
+### Runtime pins
+
+#### W4 — (P3) mypy type-checks against Python 3.12 while the repo pins Python 3.15
+
+- **What is wrong:** the interpreter pin is `3.15` (`.python-version:1`), but `[tool.mypy] python_version = "3.12"` (`pyproject.toml:78`), so the type gate validates grammar/stdlib against a different, older target than the code actually runs on. `requires-python = ">=3.11"` (`pyproject.toml:18`) is the declared floor and may be intentional for the pure core; the unchecked mypy/runtime mismatch is the gap. No dependency, fixture or deployment constraint requiring the 3.12 mypy target is visible in the packet.
+- **Files:** `.python-version:1`; `pyproject.toml:18, 78`.
+- **Done looks like:** `python_version` matches the pinned interpreter (`3.15`), or a comment at `pyproject.toml:78` records the concrete constraint that forces an older target (e.g. the pinned mypy's maximum supported `python_version`) together with the highest supported value actually used. Record exact current and target versions in the commit message (`3.12` → `3.15`, or documented alternative).
+- **Command:** `uv run mypy src/ scripts/` (clean under the aligned target; any new errors are real 3.13–3.15 typing drift to fix, not to silence) && `uv run python -c "import sys; print(sys.version_info[:3])"` (confirms the interpreter the pin resolves to).
+- **Depends on / constraints:** do not bump mypy or other dev dependencies blindly (TODO V6 records mypy 2.3.0); if the installed mypy rejects `3.15`, take the documented-alternative branch rather than upgrading without evidence.
