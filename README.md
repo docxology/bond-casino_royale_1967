@@ -9,6 +9,30 @@ rigorously and deterministically, then exposes it through the frozen
 Tracked at <https://github.com/docxology/bond-casino_royale_1967>; drafted
 inside the BOND suite as `projects/working/bond/casino_royale_1967`.
 
+## Mission model
+
+```mermaid
+flowchart TD
+    accTitle: Casino Royale 1967 implemented mission analyses
+    accDescr: Five-Bond duplicate roster, contradictory standing orders and chemin de fer shoe rules feed Duplicate-identity conflict loss and five-rule dispatch order attrition; Lexical spoof-doctrine scoring and Shannon identity-routing confusion; Exact chemin de fer draw odds and absorbing Markov escalation timing. The mission adapter returns coordination loss, entropy leak, baccarat edge and catastrophe timing with provenance, then a debrief.
+    I["Five-Bond duplicate roster, contradictory standing orders and chemin de fer shoe rules"]
+    G0["Duplicate-identity conflict loss and five-rule dispatch order attrition"]
+    I --> G0
+    G1["Lexical spoof-doctrine scoring and Shannon identity-routing confusion"]
+    I --> G1
+    G2["Exact chemin de fer draw odds and absorbing Markov escalation timing"]
+    I --> G2
+    O["mission.py: execute returns MissionOutcome<br/>Coordination loss, entropy leak, baccarat edge, catastrophe time and provenance"]
+    G0 --> O
+    G1 --> O
+    G2 --> O
+    O --> F["debrief: mission summary"]
+```
+
+The branches group implemented capabilities; they do not imply a runtime order.
+
+**Source map:** [`coordination_farce.py`](src/casino_royale_1967/coordination_farce.py), [`dispatch_chaos.py`](src/casino_royale_1967/dispatch_chaos.py); [`spoof_analyzer.py`](src/casino_royale_1967/spoof_analyzer.py), [`identity_confusion.py`](src/casino_royale_1967/identity_confusion.py); [`baccarat_table.py`](src/casino_royale_1967/baccarat_table.py), [`escalation_ladder.py`](src/casino_royale_1967/escalation_ladder.py); [`mission.py`](src/casino_royale_1967/mission.py).
+
 ## Film → software
 
 Each concept in the film becomes a tested algorithm, not a themed stub.
