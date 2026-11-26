@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from casino_royale_1967.figures.plots import (
@@ -55,6 +56,17 @@ class TestFigureRendering:
         for name, path in paths.items():
             assert path == tmp_path / FIGURE_FILENAMES[name]
             assert path.exists() and path.stat().st_size > 0
+
+    def test_render_all_writes_the_accessible_registry(self, tmp_path: Path) -> None:
+        paths = render_all_figures(tmp_path)
+        registry = json.loads(
+            (tmp_path / "figure_registry.json").read_text(encoding="utf-8")
+        )
+        figures = registry["figures"]
+        assert {record["label"]: record["filename"] for record in figures} == {
+            f"fig:{name}": path.name for name, path in paths.items()
+        }
+        assert all(record["alt_text"].strip() for record in figures)
 
     def test_render_all_accepts_str_dir(self, tmp_path: Path) -> None:
         target = str(tmp_path / "figs")

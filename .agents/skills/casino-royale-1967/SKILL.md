@@ -62,7 +62,7 @@ uv run python scripts/z_generate_manuscript_variables.py  # tokens + resolved tr
 - **Determinism.** Domain artifacts must be byte-reproducible (seed 7, no
   wall clock anywhere). `generate_variables` takes no `now=`: the manuscript's
   date and Python range come from committed `paper.date` /
-  `paper.python_requires` in `manuscript/config.yaml`.
+  `paper.python_requires` in `docs/manuscript/config.yaml`.
 - **Metrics injected, never hand-authored.** Reference manuscript numbers as
   `{{TOKEN}}`s; the live cross-reference test enforces completeness.
 - **`uv sync --extra dev` before pytest** after any pyproject change (the

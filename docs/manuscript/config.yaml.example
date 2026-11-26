@@ -7,6 +7,7 @@ paper:
   subtitle: "Deterministic Modelling of Multi-Agent Coordination Failure, Dispatch Chaos, and Spoof Ops Doctrine"
   version: "0.1.0"
   date: "2026-08-04"
+  python_requires: ">=3.11"
 
 authors:
   - name: "Daniel Ari Friedman"

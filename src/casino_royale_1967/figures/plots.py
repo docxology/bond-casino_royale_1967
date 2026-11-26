@@ -22,6 +22,7 @@ byte-identical PNGs.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import matplotlib
@@ -68,6 +69,15 @@ FIGURE_FILENAMES: dict[str, str] = {
     "identity": "identity_confusion.png",
     "baccarat": "baccarat_odds.png",
     "escalation": "escalation_ladder.png",
+}
+
+_FIGURE_ALT_TEXT = {
+    "coordination": "Bars show how many agents cover each task. Bars above the dashed one-agent threshold indicate overlaps.",
+    "dispatch": "Stacked bars show accepted dispatches and protocol violations at each simulation tick.",
+    "spoof": "Bars compare the spoof scores of individual doctrine directives. The title gives the aggregate index.",
+    "identity": "A heat map shows the probability of routing to each Bond for each intended agent.",
+    "baccarat": "Bars show the player, banker, and tie deal probabilities. The title reports the hand-collision probability.",
+    "escalation": "Paired bars compare expected steps to catastrophe under spoof and sanctioned doctrine at each transient state.",
 }
 
 
@@ -226,7 +236,7 @@ def render_all_figures(output_dir: Path | str) -> dict[str, Path]:
         Mapping of concept name -> rendered PNG path.
     """
     target = Path(output_dir)
-    return {
+    paths = {
         "coordination": render_coordination_figure(target),
         "dispatch": render_dispatch_figure(target),
         "spoof": render_spoof_figure(target),
@@ -234,3 +244,18 @@ def render_all_figures(output_dir: Path | str) -> dict[str, Path]:
         "baccarat": render_baccarat_figure(target),
         "escalation": render_escalation_figure(target),
     }
+    registry = {
+        "figures": [
+            {
+                "label": f"fig:{name}",
+                "filename": path.name,
+                "alt_text": _FIGURE_ALT_TEXT[name],
+            }
+            for name, path in paths.items()
+        ]
+    }
+    registry_path = target / "figure_registry.json"
+    registry_path.write_text(
+        json.dumps(registry, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return paths

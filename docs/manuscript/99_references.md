@@ -1,7 +1,7 @@
 # References
 
 This is the human-readable list. The machine-readable bibliography is
-`manuscript/references.bib`, and every key in it is cited at least once from a
+`docs/manuscript/references.bib`, and every key in it is cited at least once from a
 numbered section — enforced in both directions by
 `tests/test_manuscript_variables.py::TestBibliography`. The BOND-API entry
 below is a local path reference rather than a bibliography record and

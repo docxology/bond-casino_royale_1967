@@ -64,7 +64,7 @@ against, because a manuscript number is the least likely thing anyone
 re-derives.
 
 1. **Unknown tokens fail.** Every `{{TOKEN}}` appearing in
-   `manuscript/[0-9]*.md` must exist in the generated token map — the same
+   `docs/manuscript/[0-9]*.md` must exist in the generated token map — the same
    strict check the renderer performs.
 2. **Unused tokens fail.** Every generated token must be referenced by some
    section. This gate exists because six `FIGURE_*` tokens were once generated

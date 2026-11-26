@@ -12,7 +12,7 @@ Every artifact in this project is deterministic by construction:
   the manuscript token map reads no clock at all — `generate_variables` takes
   no `now=` parameter, because an injectable clock with a wall-clock default is
   still a wall clock. This manuscript's date, {{MANUSCRIPT_DATE}}, is the
-  committed `paper.date` in `manuscript/config.yaml`; edit that file to change
+  committed `paper.date` in `docs/manuscript/config.yaml`; edit that file to change
   it, and it is otherwise fixed.
 - **No interpreter state either.** The declared Python range is
   `{{PYTHON_REQUIRES}}` — the committed `paper.python_requires`, held equal to

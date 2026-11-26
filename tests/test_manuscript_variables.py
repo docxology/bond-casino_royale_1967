@@ -1,7 +1,7 @@
 """Tests for manuscript variable generation and the live token cross-reference.
 
 The live cross-reference test scans the numbered prose sections in
-``manuscript/[0-9]*.md`` and asserts every ``{{TOKEN}}`` there exists in the
+``docs/manuscript/[0-9]*.md`` and asserts every ``{{TOKEN}}`` there exists in the
 token map produced by ``generate_variables`` — the same strict gate the
 manuscript renderer enforces.
 """
@@ -25,7 +25,7 @@ from casino_royale_1967.manuscript_variables import (
 )
 
 _ROOT = Path(__file__).resolve().parent.parent
-_MANUSCRIPT = _ROOT / "manuscript"
+_MANUSCRIPT = _ROOT / "docs" / "manuscript"
 
 
 class TestTokenMap:
@@ -175,8 +175,8 @@ class TestTokenMap:
 
     def test_missing_committed_stamp_field_is_an_error(self, tmp_path: Path) -> None:
         """A blank stamp field raises rather than falling back to runtime state."""
-        manuscript = tmp_path / "manuscript"
-        manuscript.mkdir()
+        manuscript = tmp_path / "docs" / "manuscript"
+        manuscript.mkdir(parents=True)
         source = yaml.safe_load((_MANUSCRIPT / "config.yaml").read_text(encoding="utf-8"))
         source["paper"]["date"] = "   "
         manuscript.joinpath("config.yaml").write_text(yaml.safe_dump(source), encoding="utf-8")
@@ -189,7 +189,7 @@ class TestTokenMap:
 
 
 class TestConfigLoading:
-    """manuscript/config.yaml drives the identity and experiment tokens."""
+    """docs/manuscript/config.yaml drives the identity and experiment tokens."""
 
     def test_loads_mission_config(self) -> None:
         config = load_mission_config(_ROOT)
@@ -379,8 +379,8 @@ class TestWriteResolvedTree:
     """Strict token substitution into output/manuscript/."""
 
     def _make_scaffold(self, tmp_path: Path) -> Path:
-        manuscript = tmp_path / "manuscript"
-        manuscript.mkdir()
+        manuscript = tmp_path / "docs" / "manuscript"
+        manuscript.mkdir(parents=True)
         (manuscript / "00_test.md").write_text(
             "codename {{BOND_CODENAME}} agents {{CONFIG_NUM_AGENTS}}",
             encoding="utf-8",
@@ -409,8 +409,8 @@ class TestWriteResolvedTree:
             )
 
     def test_bad_config_yaml_raises(self, tmp_path: Path) -> None:
-        manuscript = tmp_path / "manuscript"
-        manuscript.mkdir()
+        manuscript = tmp_path / "docs" / "manuscript"
+        manuscript.mkdir(parents=True)
         (manuscript / "config.yaml").write_text("- just\n- a\n- list\n", encoding="utf-8")
         with pytest.raises(ValueError, match="YAML mapping"):
             load_mission_config(tmp_path)

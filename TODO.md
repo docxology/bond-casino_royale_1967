@@ -1,5 +1,9 @@
 # TODO — casino_royale_1967 (FIVE 00s)
 
+Historical review notes use the paths in effect at the time. The current paper
+source is [docs/manuscript/](docs/manuscript/README.md), and the standalone
+guide now lives [under docs/](docs/standalone.md).
+
 **FIVE 00s** is the PROJECT BOND film package for the 1967 *Casino Royale* — the
 spy farce in which five operatives all answer to the codename *James Bond*. Six
 pure domain modules model that coordination catastrophe (roster/overlap

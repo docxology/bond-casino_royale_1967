@@ -28,7 +28,7 @@ implement math or construct a protocol type in a script.
 ## Rule 4 — Metrics are injected, never hand-authored
 
 Any measured number in the manuscript must arrive as a `{{TOKEN}}` from
-`manuscript/config.yaml` + `src/casino_royale_1967/manuscript_variables.py`.
+`docs/manuscript/config.yaml` + `src/casino_royale_1967/manuscript_variables.py`.
 Three gates in `tests/test_manuscript_variables.py` enforce this: an unknown
 token fails, a generated-but-unused token fails, and a bare numeral in
 `03_results.md` or `04_conclusion.md` fails.
@@ -42,7 +42,7 @@ Every persisted artifact must be byte-reproducible: no RNG in any analysis, no
 wall clock and no interpreter introspection anywhere that reaches a file.
 `generate_variables` takes no `now=` — the manuscript's date and Python range
 come from committed `paper.date` / `paper.python_requires` in
-`manuscript/config.yaml`. Do not reintroduce an injectable clock: a default
+`docs/manuscript/config.yaml`. Do not reintroduce an injectable clock: a default
 wall clock behind a test-only override is how this package previously shipped
 a false byte-for-byte claim, and `tests/test_regeneration_determinism.py`
 (which regenerates twice and diffs the bytes) exists to catch its return.

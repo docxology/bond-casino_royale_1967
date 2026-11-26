@@ -185,7 +185,7 @@ DEFAULT_ASSIGNMENTS: tuple[Assignment, ...] = (
     Assignment("bond_cooper", "mata_bond", priority=1),
 )
 
-# Default loss weights (documented in manuscript/config.yaml).
+# Default loss weights (documented in docs/manuscript/config.yaml).
 OVERLAP_WEIGHT = 2.0
 CONFLICT_WEIGHT = 3.0
 

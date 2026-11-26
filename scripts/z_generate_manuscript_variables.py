@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Thin orchestrator: generate and inject FIVE 00s manuscript variables.
 
-Computes the ``{{TOKEN}}`` map from ``manuscript/config.yaml`` plus the live
+Computes the ``{{TOKEN}}`` map from ``docs/manuscript/config.yaml`` plus the live
 deterministic domain metrics (``src/.../manuscript_variables.py``), writes
 ``output/data/manuscript_variables.json``, renders all six concept figures
 into ``output/figures/``, and resolves every ``{{TOKEN}}`` into

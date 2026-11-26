@@ -15,7 +15,7 @@ exclusive pair is a scheduling problem rather than a conflict.
 {{RESULT_CLEARANCE_LEVEL}}, sent to *{{RESULT_CLEARANCE_TASK}}* — an
 operation requiring clearance {{RESULT_CLEARANCE_REQUIRED}}.
 
-![Per-task agent load; bars above the dashed line are overlaps.](../output/figures/{{FIGURE_COORDINATION}}){#fig:coordination}
+![Per-task agent load; bars above the dashed line are overlaps.](../../output/figures/{{FIGURE_COORDINATION}}){#fig:coordination}
 
 The weighted **coordination loss** is **{{RESULT_COORDINATION_LOSS}}**
 (weights {{CONFIG_OVERLAP_WEIGHT}} for overlap and
@@ -43,7 +43,7 @@ rule set rather than a narrow subset:
 | `duplicate_order` | {{RESULT_RULE_DUPLICATE_ORDER}} |
 | `duplicate_codename` | {{RESULT_RULE_DUPLICATE_CODENAME}} |
 
-![Dispatch timeline: accepted orders vs protocol violations per tick.](../output/figures/{{FIGURE_DISPATCH}}){#fig:dispatch}
+![Dispatch timeline: accepted orders vs protocol violations per tick.](../../output/figures/{{FIGURE_DISPATCH}}){#fig:dispatch}
 
 The dominant failure mode is identity collapse: because all five agents share
 the codename *James Bond*, the dispatch centre repeatedly mistakes one agent
@@ -56,7 +56,7 @@ The film's standing orders of {{RESULT_DIRECTIVES}} directives score a
 score of {{RESULT_MEAN_SPOOF_SCORE}}. The worst offender is
 *"{{RESULT_WORST_DIRECTIVE}}"* — an inversion of the proportionality principle.
 
-![Per-directive spoof scores with the aggregate index in the title.](../output/figures/{{FIGURE_SPOOF}}){#fig:spoof}
+![Per-directive spoof scores with the aggregate index in the title.](../../output/figures/{{FIGURE_SPOOF}}){#fig:spoof}
 
 Contradiction detection attributes the scores across the sane rule surface
 (identity, single-agent discipline, command, discretion, force, fratricide):
@@ -90,7 +90,7 @@ A Bayesian sighting (jurisdiction match + clearance sufficiency) at
 the SMERSH operation resolves to *{{RESULT_IDENTITY_RESOLUTION}}* with
 posterior confidence {{RESULT_IDENTITY_CONFIDENCE}}.
 
-![Routing confusion matrix across the five Bonds.](../output/figures/{{FIGURE_IDENTITY}}){#fig:identity}
+![Routing confusion matrix across the five Bonds.](../../output/figures/{{FIGURE_IDENTITY}}){#fig:identity}
 
 ## The casino table
 
@@ -114,7 +114,7 @@ approximation is measurably wrong — it is a modelling assumption, not a
 rounding detail. Its magnitude for a full standard shoe is not quantified
 here; `TODO.md` records that gap as an accepted, open limitation.
 
-![Casino table deal odds with the five-Bond collision probability.](../output/figures/{{FIGURE_BACCARAT}}){#fig:baccarat}
+![Casino table deal odds with the five-Bond collision probability.](../../output/figures/{{FIGURE_BACCARAT}}){#fig:baccarat}
 
 ## Escalation ladder
 
@@ -134,5 +134,5 @@ transition matrix itself — a row with a unit diagonal and no outflow — never
 from a state's name, so relabelling or reordering the ladder cannot change the
 analysis.
 
-![Expected steps to catastrophe per state, by doctrine.](../output/figures/{{FIGURE_ESCALATION}}){#fig:escalation}
+![Expected steps to catastrophe per state, by doctrine.](../../output/figures/{{FIGURE_ESCALATION}}){#fig:escalation}
 

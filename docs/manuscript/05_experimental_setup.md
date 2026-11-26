@@ -3,7 +3,7 @@
 ## Configuration
 
 All identity and experiment parameters are declared in
-`manuscript/config.yaml` and injected as tokens by
+`docs/manuscript/config.yaml` and injected as tokens by
 `src/casino_royale_1967/manuscript_variables.py` — never hard-coded in prose.
 
 | Parameter | Value |
@@ -22,7 +22,7 @@ All identity and experiment parameters are declared in
 | Casino table (Bonds seated) | {{CONFIG_TABLE_BONDS}} |
 | Figures rendered | {{CONFIG_NUM_FIGURES}} |
 
-Values in this table are read from `manuscript/config.yaml` where the
+Values in this table are read from `docs/manuscript/config.yaml` where the
 parameter is a free choice (loss weights, dispatch horizon) and derived from
 the domain modules where the parameter is structural (rule counts, ladder
 size, figure count), so neither source can drift from the code.
