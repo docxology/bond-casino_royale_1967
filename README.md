@@ -64,7 +64,7 @@ Each concept in the film becomes a tested algorithm, not a themed stub.
 | Module | Role |
 |---|---|
 | `src/casino_royale_1967/mission.py` | The single `bond_api` adapter — `MissionProvider`, gadget registry, deterministic provenance |
-| `src/casino_royale_1967/manuscript_variables.py` | Live `{{TOKEN}}` hydration from `manuscript/config.yaml` + the domain core, and the strict resolved-manuscript writer |
+| `src/casino_royale_1967/manuscript_variables.py` | Live `{{TOKEN}}` hydration from `docs/manuscript/config.yaml` + the domain core, and the strict resolved-manuscript writer |
 | `src/casino_royale_1967/figures/plots.py` | Six deterministic matplotlib figures, one per concept |
 
 The domain core is genuinely independent of `bond_api`: the package
@@ -97,37 +97,11 @@ populates a caller-supplied registry.
 Every stage is pure — no RNG, no wall clock — so the whole lifecycle is
 byte-reproducible.
 
-## Install and test
+## Use and verify
 
-```bash
-uv sync --all-extras
-uv run pytest tests/ --cov=src --cov-fail-under=90
-uv run ruff check src/ scripts/ tests/ && uv run ruff format --check src/ scripts/ tests/
-uv run mypy src/ scripts/
-```
-
-The coverage gate is **≥90% line + branch on `src/`**; the suite currently runs
-well above it. Run the command for the current figure rather than trusting a
-number written here — this file is not regenerated.
-
-`bond-api` is bound in `[tool.uv.sources]` to the copy at `vendor/bond-api`
-(`pyproject.toml`), not to an index; `uv sync` resolves it from disk inside this
-tree, so a standalone clone needs no sibling checkout.
-
-If a command fails with `Failed to initialize cache`, that is a sandbox
-restriction on `uv`'s cache directory, not a package failure.
-
-## Mission phases (thin CLIs)
-
-```bash
-uv run python scripts/mission.py brief     # mission brief (deterministic JSON)
-uv run python scripts/mission.py recon     # reconnaissance findings
-uv run python scripts/mission.py plan      # the six-step plan
-uv run python scripts/mission.py execute   # mission outcome + provenance
-uv run python scripts/mission.py debrief   # lessons learned
-uv run python scripts/mission.py figures   # render the six concept figures
-uv run python scripts/z_generate_manuscript_variables.py  # tokens + figures + resolved manuscript
-```
+The [documentation index](docs/README.md) links to the [setup and usage guide](docs/quickstart.md),
+[native checks and shared render workflow](docs/quickstart.md#render-the-manuscript),
+and the [authored manuscript](docs/manuscript/README.md).
 
 ## Determinism and quality
 
@@ -139,13 +113,12 @@ uv run python scripts/z_generate_manuscript_variables.py  # tokens + figures + r
   `output/data/manuscript_variables.json`, `output/manuscript/*.md` and
   `output/figures/*.png` identically, because the token map reads no clock and
   no interpreter state — the manuscript's date and Python range come from
-  committed `paper.date` / `paper.python_requires` in `manuscript/config.yaml`.
+  committed `paper.date` / `paper.python_requires` in `docs/manuscript/config.yaml`.
   `tests/test_regeneration_determinism.py` regenerates twice and diffs the
   bytes, so the claim fails loudly rather than quietly if that ever changes.
 - Zero mocks — every test exercises real computation on real declared data.
-- ≥90% line+branch coverage on `src/` is the canonical gate; ruff and mypy run
-  clean on `src/` and `scripts/`.
-- Manuscript metrics are injected live from `manuscript/config.yaml` +
+- ≥90% line and branch coverage on `src/` is the canonical test gate.
+- Manuscript metrics are injected live from `docs/manuscript/config.yaml` +
   `manuscript_variables.py`. Three gates enforce it: unknown tokens fail,
   unused tokens fail, and bare numerals in results prose fail.
 
@@ -155,7 +128,7 @@ uv run python scripts/z_generate_manuscript_variables.py  # tokens + figures + r
 - `scripts/` — thin mission-phase orchestrators
 - `tests/` — per-module real-data tests plus protocol, layer-contract,
   manuscript, figure and CLI-smoke suites
-- `manuscript/` — the FIVE 00s manuscript (nine numbered sections, config,
+- `docs/manuscript/` — the FIVE 00s manuscript (nine numbered sections, config,
   preamble, bibliography)
 - `docs/` — architecture, agent instructions, testing philosophy
 - `data/` — claim ledger (`data/claim_ledger.yaml`)

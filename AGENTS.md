@@ -11,7 +11,7 @@ deterministic mission software, exposed through the FROZEN `bond_api`
 ## Scope and hard constraints
 
 - **Scope is exactly this package directory** (`src/casino_royale_1967/`,
-  `scripts/`, `tests/`, `manuscript/`, docs, metadata). Never touch sibling
+  `scripts/`, `tests/`, `docs/manuscript/`, docs, metadata). Never touch sibling
   packages, bond root files, or the template repo.
 - **Repo-scoped commits.** The tree is tracked at
   `github.com/docxology/bond-casino_royale_1967`; commit inside this repo only
@@ -29,7 +29,7 @@ deterministic mission software, exposed through the FROZEN `bond_api`
 - **Thin orchestrators in `scripts/`; business logic in `src/`.**
 - **No leftover `template[_]code_project` strings** (bracket-split any must-run
   grep in docs so the doc cannot trip its own gate).
-- Manuscript metrics are injected from `manuscript/config.yaml` +
+- Manuscript metrics are injected from `docs/manuscript/config.yaml` +
   `src/casino_royale_1967/manuscript_variables.py` — never hand-authored.
 - Update `README.md`, `AGENTS.md`, `TODO.md` to reflect THIS package.
 
@@ -45,7 +45,7 @@ deterministic mission software, exposed through the FROZEN `bond_api`
 
 `mission.py` and the pure core communicate through plain dicts/dataclasses;
 nothing in `src` imports `infrastructure.*` at all
-(`manuscript/layer_contract.yaml` declares `allow_infrastructure_imports: []`).
+(`docs/manuscript/layer_contract.yaml` declares `allow_infrastructure_imports: []`).
 
 The layer contract is **executed, not asserted**: `tests/test_layer_contract.py`
 imports the whole domain core in a subprocess with `bond_api` blocked at the
@@ -88,7 +88,7 @@ entries — never change a signature, the class name, or a registry symbol.
   for forbidden imports, and the lazy adapter exports. A new domain module must
   be added to its `DOMAIN_MODULES` tuple or the completeness check fails.
 - `test_manuscript_variables.py` — token map plus **three manuscript gates**
-  over `manuscript/[0-9]*.md` (numbered prose only; guide files use
+  over `docs/manuscript/[0-9]*.md` (numbered prose only; guide files use
   `{{TOKEN}}` syntax legitimately): unknown tokens fail, generated-but-unused
   tokens fail, and bare numerals in `03_results.md` / `04_conclusion.md` fail.
 - `test_scripts_smoke.py` — subprocess runs of the thin CLIs via

@@ -120,7 +120,7 @@ class TestRegenerationIsByteIdentical:
         _run_generator()
         variables: dict[str, str] = json.loads(_TOKEN_JSON.read_text(encoding="utf-8"))
 
-        committed_date = yaml.safe_load((_ROOT / "manuscript" / "config.yaml").read_text(encoding="utf-8"))["paper"][
+        committed_date = yaml.safe_load((_ROOT / "docs" / "manuscript" / "config.yaml").read_text(encoding="utf-8"))["paper"][
             "date"
         ]
 
@@ -143,7 +143,7 @@ class TestCommittedBuildInputs:
 
     def test_python_requires_matches_pyproject(self) -> None:
         """``paper.python_requires`` must not drift from ``requires-python``."""
-        config = yaml.safe_load((_ROOT / "manuscript" / "config.yaml").read_text(encoding="utf-8"))
+        config = yaml.safe_load((_ROOT / "docs" / "manuscript" / "config.yaml").read_text(encoding="utf-8"))
         declared = str(config["paper"]["python_requires"])
 
         pyproject = (_ROOT / "pyproject.toml").read_text(encoding="utf-8")

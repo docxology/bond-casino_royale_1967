@@ -152,7 +152,7 @@ the acceleration factor.
   cannot silently break an image link.
 - **`manuscript_variables.py`** — `generate_variables` recomputes every metric
   live from the domain core (identity and experiment parameters come from
-  `manuscript/config.yaml`), `save_variables` writes sorted JSON, and
+  `docs/manuscript/config.yaml`), `save_variables` writes sorted JSON, and
   `write_resolved_manuscript_tree` performs **strict** substitution into
   `output/manuscript/`: any unresolved token raises `ValueError` naming the
   section and the token. There is no draft mode — every token is computable.
@@ -222,7 +222,7 @@ signatures, the class name, or the registry symbols.
 5. If it has a figure, add a `render_*_figure` plus a `FIGURE_FILENAMES` entry,
    and reference it from the manuscript through its `FIGURE_*` token.
 6. Add tokens to `manuscript_variables.py` and reference them from a
-   `manuscript/[0-9]*.md` section. Three gates enforce this: unused tokens
+   `docs/manuscript/[0-9]*.md` section. Three gates enforce this: unused tokens
    fail, unknown tokens fail, and bare numerals in results prose fail.
 7. Re-run the full gate (see [agent_instructions.md](agent_instructions.md)).
 

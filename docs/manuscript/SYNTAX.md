@@ -9,18 +9,18 @@ for this package.
 Numeric result claims **must** use `{{TOKEN}}` syntax — never hard-coded
 numbers in prose. Tokens are computed live by
 `src/casino_royale_1967/manuscript_variables.py` from
-`manuscript/config.yaml` + the deterministic domain core, and hydrated by
+`docs/manuscript/config.yaml` + the deterministic domain core, and hydrated by
 `scripts/z_generate_manuscript_variables.py` (strict: any unresolved token
 fails).
 
 To add a token: add it to `generate_variables()`, reference it with
-`{{TOKEN}}` in a `manuscript/[0-9]*.md` section, and let the live
+`{{TOKEN}}` in a `docs/manuscript/[0-9]*.md` section, and let the live
 cross-reference test (`test_manuscript_variables.py`) verify it.
 
 ## Figure references
 
 ```markdown
-![Per-task agent load; bars above the dashed line are overlaps.](../output/figures/coordination_farce.png){#fig:coordination}
+![Per-task agent load; bars above the dashed line are overlaps.](../../output/figures/coordination_farce.png){#fig:coordination}
 ```
 
 Reference in prose with `[@fig:label]`. Images must exist under

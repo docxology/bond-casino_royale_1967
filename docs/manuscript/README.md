@@ -16,19 +16,22 @@ five-Bond farce of the 1967 *Casino Royale*:
 6. **Escalation-ladder model** — doctrine as an absorbing Markov chain,
    compared against a disciplined doctrine.
 
+Render the paper with the [shared build instructions](../quickstart.md#render-the-manuscript).
+The authored sections, configuration, preamble, and references are maintained here.
+
 ## Sections
 
 | File | Content |
 |---|---|
-| `00_abstract.md` | Abstract with the canonical result tokens for all six concepts |
-| `01_introduction.md` | The five-Bond premise, the six concepts, and the reader's guide |
-| `02_methodology.md` | The six algorithms, one section each |
-| `03_results.md` | Canonical metrics, the per-rule violation table, and all six figures |
-| `04_conclusion.md` | Summary across the six concepts |
-| `05_experimental_setup.md` | Configuration parameters + software environment |
-| `06_reproducibility.md` | Determinism guarantees + the full metric snapshot |
-| `07_scope_and_related_work.md` | What the models do not claim + related threads |
-| `99_references.md` | References (mirrors `references.bib`) |
+| [`00_abstract.md`](00_abstract.md) | Abstract with the canonical result tokens for all six concepts |
+| [`01_introduction.md`](01_introduction.md) | The five-Bond premise, the six concepts, and the reader's guide |
+| [`02_methodology.md`](02_methodology.md) | The six algorithms, one section each |
+| [`03_results.md`](03_results.md) | Canonical metrics, the per-rule violation table, and all six figures |
+| [`04_conclusion.md`](04_conclusion.md) | Summary across the six concepts |
+| [`05_experimental_setup.md`](05_experimental_setup.md) | Configuration parameters + software environment |
+| [`06_reproducibility.md`](06_reproducibility.md) | Determinism guarantees + the full metric snapshot |
+| [`07_scope_and_related_work.md`](07_scope_and_related_work.md) | What the models do not claim + related threads |
+| [`99_references.md`](99_references.md) | References (mirrors `references.bib`) |
 
 Supporting files: `config.yaml` (identity + experiment parameters),
 `preamble.md` (LaTeX preamble), `references.bib` (bibliography),

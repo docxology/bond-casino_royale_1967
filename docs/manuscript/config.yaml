@@ -8,9 +8,8 @@ paper:
   title: "Casino Royale: FIVE 00s — Special-Agent Mission Software"
   subtitle: "Deterministic Modelling of Multi-Agent Coordination Failure, Dispatch Chaos, Spoof Ops Doctrine, Identity Confusion, Baccarat Odds, and Doctrine Escalation"
   version: "0.1.0"
-  # The manuscript's dated stamp ({{MANUSCRIPT_DATE}}) and its declared
-  # interpreter range ({{PYTHON_REQUIRES}}, kept equal to requires-python in
-  # pyproject.toml by tests/test_regeneration_determinism.py). Both are
+  # The manuscript's dated stamp and interpreter range are tested against
+  # committed metadata in tests/test_regeneration_determinism.py. Both are
   # committed here precisely so no artifact reads a clock or the running
   # interpreter — that is what makes regeneration byte-for-byte.
   date: "2026-08-04"
@@ -24,9 +23,8 @@ authors:
     corresponding: true
 
 publication:
-  # Local-only PROJECT BOND tree: no remote, no published DOI. These fields
-  # document the fork contract; they are deliberately absent from sidecars.
-  repository_url: "local (projects/working/bond/casino_royale_1967)"
+  # Public film-package repository. This package has no published DOI.
+  repository_url: "https://github.com/docxology/bond-casino_royale_1967"
   transmission_bookends:
     enabled: false
     show_steganography: false

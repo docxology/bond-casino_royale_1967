@@ -9,6 +9,9 @@ Documentation for the FIVE 00s package: deterministic mission software for the
 | File | What it holds |
 |---|---|
 | [README.md](README.md) | This index — what the docs cover and where the code lives |
+| [Quickstart](quickstart.md) | Setup, mission commands, native verification, and the pinned manuscript build |
+| [Standalone package](standalone.md) | Package boundaries and limitations |
+| [Manuscript](manuscript/README.md) | Ordered sections, configuration, bibliography, and figure references |
 | [AGENTS.md](AGENTS.md) | How an agent should work inside this package: reading order and the checks that matter |
 | [agent_instructions.md](agent_instructions.md) | The ten hard operational rules — scope, zero-mock, thin orchestrators, injected metrics, determinism, layer contract, frozen protocol, the gate, artifact regeneration, positive controls |
 | [architecture.md](architecture.md) | Module-by-module architecture of `src/`, how the pieces compose, and how `mission.py` implements the frozen `MissionProvider` |
@@ -40,17 +43,5 @@ Package-level docs live one directory up: [`../README.md`](../README.md)
 | `src/casino_royale_1967/figures/plots.py` | Six deterministic matplotlib figures, one per concept |
 | `scripts/mission.py` | Thin CLIs for the five mission phases plus `figures` |
 | `scripts/z_generate_manuscript_variables.py` | Thin CLI: token map + figures + resolved manuscript tree |
-| `manuscript/` | The FIVE 00s manuscript (nine numbered sections, config, preamble, bibliography) |
+| [`docs/manuscript/`](manuscript/README.md) | The FIVE 00s manuscript (nine numbered sections, config, preamble, bibliography) |
 | `tests/` | Per-module real-data tests plus protocol, layer-contract, manuscript, figure and CLI-smoke suites |
-
-## Quick start
-
-```bash
-uv sync --extra dev
-uv run pytest tests/ --cov=src --cov-fail-under=90
-uv run python scripts/mission.py execute
-uv run python scripts/z_generate_manuscript_variables.py
-```
-
-`uv` cannot write its cache under a restrictive sandbox; a `Failed to
-initialize cache` error is an environment restriction, not a package failure.

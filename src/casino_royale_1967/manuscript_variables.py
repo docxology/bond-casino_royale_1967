@@ -1,9 +1,9 @@
 """Manuscript variables for the FIVE 00s manuscript.
 
-Hydrates ``{{TOKEN}}`` markers in ``manuscript/[0-9]*.md`` from two sources,
+Hydrates ``{{TOKEN}}`` markers in ``docs/manuscript/[0-9]*.md`` from two sources,
 never from hand-authored prose:
 
-* identity/experiment parameters from ``manuscript/config.yaml``
+* identity/experiment parameters from ``docs/manuscript/config.yaml``
   (``mission:`` and ``experiment:`` blocks);
 * live metrics computed deterministically from the domain core — the
   coordination report, dispatch report, and doctrine report.
@@ -13,7 +13,7 @@ never from hand-authored prose:
 ``ValueError`` (draft mode is not offered — every token is computable).
 
 The token map reads **no** clock and **no** interpreter state: every value is
-a pure function of committed files (``manuscript/config.yaml`` plus the domain
+a pure function of committed files (``docs/manuscript/config.yaml`` plus the domain
 modules). The manuscript's dated stamp is ``paper.date`` from the config and
 its declared interpreter range is ``paper.python_requires``; there is
 deliberately no ``now=`` parameter, because an injectable clock is still a
@@ -70,16 +70,19 @@ _CONFIG_DEFAULTS: dict[str, object] = {
 }
 
 
+_MANUSCRIPT_SOURCE = Path("docs") / "manuscript"
+
+
 def load_mission_config(project_root: Path) -> dict[str, object]:
-    """Load ``manuscript/config.yaml`` merged over safe defaults.
+    """Load ``docs/manuscript/config.yaml`` merged over safe defaults.
 
     Args:
-        project_root: the package root (contains ``manuscript/config.yaml``).
+        project_root: the package root (contains ``docs/manuscript/config.yaml``).
 
     Returns:
         The parsed config mapping (never ``None`` for a valid file).
     """
-    path = project_root / "manuscript" / "config.yaml"
+    path = project_root / _MANUSCRIPT_SOURCE / "config.yaml"
     with path.open(encoding="utf-8") as handle:
         loaded = yaml.safe_load(handle) or {}
     if not isinstance(loaded, dict):
@@ -123,7 +126,7 @@ def _committed_paper_field(config: dict[str, object], field: str) -> str:
     value = _section(config, "paper").get(field)
     if not isinstance(value, str) or not value.strip():
         raise ValueError(
-            f"manuscript/config.yaml must set a non-empty string paper.{field}; "
+            f"docs/manuscript/config.yaml must set a non-empty string paper.{field}; "
             "manuscript stamps are derived from committed configuration, "
             "never from the wall clock or the running interpreter"
         )
@@ -310,7 +313,7 @@ def write_resolved_manuscript_tree(project_root: Path, variables: dict[str, str]
     Returns:
         The output manuscript directory.
     """
-    source_dir = project_root / "manuscript"
+    source_dir = project_root / _MANUSCRIPT_SOURCE
     out_dir = project_root / "output" / "manuscript"
     out_dir.mkdir(parents=True, exist_ok=True)
 

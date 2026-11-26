@@ -39,7 +39,7 @@ The whole package is wired into the PROJECT BOND suite: a `MissionProvider`
 protocol, the five mission phases are exposed as thin CLIs under `scripts/`,
 and {{CONFIG_NUM_FIGURES}} manuscript figures are generated deterministically
 from the same analyses the mission executes. Metrics in this manuscript are
-never hand-authored — they are injected live from `manuscript/config.yaml` and
+never hand-authored — they are injected live from `docs/manuscript/config.yaml` and
 `src/casino_royale_1967/manuscript_variables.py`.
 
 ## Reader's guide

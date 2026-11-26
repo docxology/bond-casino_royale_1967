@@ -11,7 +11,7 @@
   malformed single-brace `{TOKEN}` — do not weaken that exit.
 - **Exit 0 iff the phase succeeded.** A wrapper that swallows a failure makes a broken run look
   finished.
-- **Never hand-author a manuscript number.** Values arrive through `manuscript/config.yaml` and
+- **Never hand-author a manuscript number.** Values arrive through `docs/manuscript/config.yaml` and
   `src/casino_royale_1967/manuscript_variables.py`; a figure or token typed into prose defeats the
   determinism the suite is built around.
 - **No sibling writes.** Scope is this package directory: do not touch `../bond-api`, the bond root or
