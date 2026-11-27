@@ -99,9 +99,18 @@ byte-reproducible.
 
 ## Use and verify
 
-The [documentation index](docs/README.md) links to the [setup and usage guide](docs/quickstart.md),
-[native checks and shared render workflow](docs/quickstart.md#render-the-manuscript),
-and the [authored manuscript](docs/manuscript/README.md).
+This repository installs `casino_royale_1967` and uses the checked-in
+`vendor/bond-api` dependency. To verify the baccarat table model in isolation
+with [uv](https://docs.astral.sh/uv/), run from the project root:
+
+```sh
+uv sync --locked --python 3.14 --extra dev
+uv run --no-sync --python 3.14 pytest --no-cov tests/test_baccarat_table.py
+```
+
+The [quickstart](docs/quickstart.md) has separate sections for
+[native verification](docs/quickstart.md#native-verification) and the
+[manuscript renderer](docs/quickstart.md#render-the-manuscript).
 
 ## Determinism and quality
 
