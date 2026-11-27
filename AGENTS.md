@@ -8,6 +8,11 @@ farce of the 1967 *Casino Royale* — five operatives, one codename — as
 deterministic mission software, exposed through the FROZEN `bond_api`
 `MissionProvider` protocol.
 
+Read the [documentation index](docs/README.md), then the relevant
+[source](src/AGENTS.md), [scripts](scripts/AGENTS.md), or [tests](tests/AGENTS.md)
+guidance. The [quickstart](docs/quickstart.md) records the standalone
+lockfile and Python selection.
+
 ## Scope and hard constraints
 
 - **Scope is exactly this package directory** (`src/casino_royale_1967/`,
@@ -60,7 +65,7 @@ under the same conditions — so the check cannot pass vacuously.
   [tool.uv.sources]
   bond-api = { path = "vendor/bond-api" }
   ```
-  with `"bond-api"` in `[project] dependencies`; run `uv sync --extra dev`
+  with `"bond-api"` in `[project] dependencies`; run `uv sync --locked --python 3.14 --extra dev`
   before pytest.
 - `src/casino_royale_1967/mission.py` exports `MissionProvider` at module top
   level with `film = "casino_royale_1967"`, implementing `brief()` /
